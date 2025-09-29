@@ -206,16 +206,24 @@ setup-plugins:
 	@# Oh-My-Bash plugins
 	@if [ -d ~/.oh-my-bash ]; then \
 		echo "  Configuring Oh-My-Bash plugins..."; \
-		sed -i 's/^plugins=.*/plugins=(git bashmarks kubectl docker aws)/' ~/.bashrc 2>/dev/null || \
+		if grep -q "^plugins=" ~/.bashrc 2>/dev/null; then \
+			sed -i 's/^plugins=.*/plugins=(git bashmarks kubectl docker aws)/' ~/.bashrc; \
+		else \
 			echo 'plugins=(git bashmarks kubectl docker aws)' >> ~/.bashrc; \
+		fi; \
 	fi
 	@# Oh-My-Zsh plugins
 	@if [ -d ~/.oh-my-zsh ]; then \
 		echo "  Configuring Oh-My-Zsh plugins..."; \
-		sed -i '' 's/^plugins=.*/plugins=(git docker kubectl aws terraform helm z sudo)/' ~/.zshrc 2>/dev/null || \
-			sed -i 's/^plugins=.*/plugins=(git docker kubectl aws terraform helm z sudo)/' ~/.zshrc 2>/dev/null || \
+		if grep -q "^plugins=" ~/.zshrc 2>/dev/null; then \
+			if [ "$$(uname)" = "Darwin" ]; then \
+				sed -i '' 's/^plugins=.*/plugins=(git docker kubectl aws terraform helm z sudo)/' ~/.zshrc; \
+			else \
+				sed -i 's/^plugins=.*/plugins=(git docker kubectl aws terraform helm z sudo)/' ~/.zshrc; \
+			fi; \
+		else \
 			echo 'plugins=(git docker kubectl aws terraform helm z sudo)' >> ~/.zshrc; \
-		# Install additional plugins
+		fi; \
 		if [ ! -d ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]; then \
 			echo "  Installing zsh-autosuggestions..."; \
 			git clone https://github.com/zsh-users/zsh-autosuggestions \
