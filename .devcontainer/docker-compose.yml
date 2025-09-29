@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  armyknife-dev:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    image: armyknife-platform-dev:latest
+    container_name: armyknife-dev-container
+    volumes:
+      # Mount the workspace
+      - ..:/workspace:cached
+      # Persist bash history
+      - bash-history:/home/developer/.bash_history
+      # Persist armyknife installation
+      - armyknife-home:/home/developer/.armyknife
+    environment:
+      - ARMYKNIFE_DIR=/home/developer/.armyknife
+      - ARMYKNIFE_DEV=true
+    working_dir: /workspace
+    command: /bin/bash
+    stdin_open: true
+    tty: true
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    network_mode: host
+
+volumes:
+  bash-history:
+  armyknife-home:
