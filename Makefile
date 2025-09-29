@@ -60,6 +60,7 @@ endif
 -include makefiles/Makefile.Virtualization.mk
 -include makefiles/Makefile.Network.mk
 -include makefiles/Makefile.Cloud.mk
+-include makefiles/Makefile.Bashlibs.mk
 -include makefiles/Makefile.Extras.mk
 
 # Phony targets
@@ -129,6 +130,7 @@ standard: banner init-logs backup-configs
 	@$(MAKE) -f makefiles/Makefile.Security.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.Containers.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.Network.mk minimal 2>&1 | tee -a $(LOG_FILE)
+	@$(MAKE) -f makefiles/Makefile.Bashlibs.mk all 2>&1 | tee -a $(LOG_FILE)
 	@echo ""
 	@echo -e "${GREEN}✓${NC} ArmyknifeLabs Platform - Standard installation complete!"
 	@echo ""
@@ -150,6 +152,7 @@ full: banner init-logs backup-configs
 	@$(MAKE) -f makefiles/Makefile.Virtualization.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.Network.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.Cloud.mk all 2>&1 | tee -a $(LOG_FILE)
+	@$(MAKE) -f makefiles/Makefile.Bashlibs.mk all 2>&1 | tee -a $(LOG_FILE)
 	@echo ""
 	@echo -e "${GREEN}✓${NC} ArmyknifeLabs Platform - Full installation complete!"
 	@echo ""
@@ -185,6 +188,7 @@ help: banner
 	@echo "  virtualization - VirtualBox, Vagrant, Packer"
 	@echo "  network      - Tailscale VPN, fleet management"
 	@echo "  cloud        - AWS, Azure, GCP, Linode CLIs"
+	@echo "  bashlibs     - Comprehensive bash function libraries"
 	@echo ""
 	@echo -e "${CYAN}Utility Commands:${NC}"
 	@echo "  verify       - Verify all installed components"
