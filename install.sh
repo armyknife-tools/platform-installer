@@ -112,9 +112,13 @@ detect_os() {
 
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         if [ -f /etc/os-release ]; then
+            # Save our VERSION variable before sourcing os-release
+            local SAVED_VERSION="$VERSION"
             . /etc/os-release
             OS_TYPE="$ID"
             OS_VERSION="$VERSION_ID"
+            # Restore our VERSION variable
+            VERSION="$SAVED_VERSION"
         fi
         # Check for WSL
         if [ -f /proc/sys/fs/binfmt_misc/WSLInterop ] || grep -qi microsoft /proc/version 2>/dev/null; then
