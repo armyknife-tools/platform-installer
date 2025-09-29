@@ -1,8 +1,8 @@
-# ArmyknifeLabs Platform Installer - Programming Languages Module
+# ArmyknifeLabs Platform Installer - Programming Languages Orchestrator
 # Makefile.Languages.mk
 #
-# Installs version managers and tools for Python, Node.js, Go, Rust, Java
-# Configures multiple language versions and package managers
+# Orchestrates installation of comprehensive language-specific environments
+# Delegates to specialized makefiles for Python, TypeScript/JavaScript, Go, Rust, and Java
 
 # Import parent variables
 ARMYKNIFE_DIR ?= $(HOME)/.armyknife
@@ -60,18 +60,69 @@ RUSTUP_INSTALLER := https://sh.rustup.rs
 SDKMAN_INSTALLER := https://get.sdkman.io
 
 # Phony targets
-.PHONY: all install-python install-nodejs install-go install-rust install-java \
-    install-pyenv install-uv install-pipx install-fnm install-pnpm install-bun \
-    install-gvm install-rustup install-sdkman configure-languages \
+.PHONY: all minimal python typescript golang rust java \
+    install-python install-typescript install-golang install-rust install-java \
     verify-languages update-languages clean-languages help-languages
 
-# Main target
-all: install-python install-nodejs install-go install-rust install-java \
-    configure-languages verify-languages
+# Main target - install all language ecosystems
+all: python typescript golang rust java verify-languages
 
-# Python ecosystem
-install-python: install-pyenv install-uv install-pipx
-	@echo -e "${BLUE}ℹ${NC} Setting up Python ecosystem..."
+# Minimal installation - just Python and TypeScript
+minimal: python-minimal typescript-minimal verify-languages
+
+# Delegate to specialized language makefiles
+python:
+	@echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+	@echo -e "${CYAN} Installing Python Ecosystem (Most Comprehensive Edition)${NC}"
+	@echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+	@$(MAKE) -f makefiles/Makefile.Python.mk all
+
+python-minimal:
+	@echo -e "${BLUE}ℹ${NC} Installing minimal Python ecosystem..."
+	@$(MAKE) -f makefiles/Makefile.Python.mk minimal
+
+typescript:
+	@echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+	@echo -e "${CYAN} Installing TypeScript/JavaScript Ecosystem${NC}"
+	@echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+	@$(MAKE) -f makefiles/Makefile.Typescript.mk all
+
+typescript-minimal:
+	@echo -e "${BLUE}ℹ${NC} Installing minimal TypeScript ecosystem..."
+	@$(MAKE) -f makefiles/Makefile.Typescript.mk minimal
+
+golang:
+	@echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+	@echo -e "${CYAN} Installing Go Ecosystem${NC}"
+	@echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+	@$(MAKE) -f makefiles/Makefile.Golang.mk all
+
+golang-minimal:
+	@echo -e "${BLUE}ℹ${NC} Installing minimal Go ecosystem..."
+	@$(MAKE) -f makefiles/Makefile.Golang.mk minimal
+
+rust:
+	@echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+	@echo -e "${CYAN} Installing Rust Ecosystem${NC}"
+	@echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+	@$(MAKE) -f makefiles/Makefile.Rust.mk all
+
+rust-minimal:
+	@echo -e "${BLUE}ℹ${NC} Installing minimal Rust ecosystem..."
+	@$(MAKE) -f makefiles/Makefile.Rust.mk minimal
+
+# Keep Java as-is for now (can be broken out later)
+java: install-java
+
+# Legacy install targets for backwards compatibility
+install-python: python
+install-typescript: typescript
+install-nodejs: typescript
+install-golang: golang
+install-go: golang
+install-rust: rust
+
+# Python ecosystem (legacy implementation kept for reference)
 	@# Install Python build dependencies
 ifeq ($(PACKAGE_MANAGER),apt)
 	@$(SUDO) apt install -y build-essential libssl-dev zlib1g-dev \
@@ -478,21 +529,45 @@ clean-languages:
 
 # Help
 help-languages:
-	@echo "ArmyknifeLabs Programming Languages Module"
+	@echo "ArmyknifeLabs Programming Languages Orchestrator"
+	@echo "The most comprehensive language development environments ever created"
 	@echo ""
-	@echo "Targets:"
-	@echo "  all           - Install all language ecosystems"
-	@echo "  install-python - Install Python with pyenv, uv, pipx"
-	@echo "  install-nodejs - Install Node.js with fnm, pnpm, Bun"
-	@echo "  install-go    - Install Go with gvm"
-	@echo "  install-rust  - Install Rust with rustup"
-	@echo "  install-java  - Install Java with SDKMAN!"
-	@echo "  verify-languages - Verify installations"
-	@echo "  update-languages - Update language tools"
+	@echo -e "${CYAN}Main Targets:${NC}"
+	@echo "  all      - Install ALL language ecosystems (Python, TypeScript, Go, Rust, Java)"
+	@echo "  minimal  - Install Python and TypeScript with essential tools only"
 	@echo ""
-	@echo "Versions to install:"
-	@echo "  Python: $(PYTHON_VERSIONS)"
-	@echo "  Node.js: $(NODE_LTS_VERSION) (LTS), $(NODE_LATEST_VERSION) (latest)"
-	@echo "  Go: $(GO_VERSION)"
-	@echo "  Rust: $(RUST_CHANNELS)"
-	@echo "  Java: $(JAVA_VERSION)"
+	@echo -e "${CYAN}Individual Languages:${NC}"
+	@echo "  python      - Complete Python ecosystem (AI/ML, Data Science, Security, Cloud)"
+	@echo "  typescript  - Complete TypeScript/JavaScript ecosystem (Web, Mobile, Desktop)"
+	@echo "  golang      - Complete Go ecosystem (Cloud-native, DevOps, CLI tools)"
+	@echo "  rust        - Complete Rust ecosystem (Systems, WASM, Embedded)"
+	@echo "  java        - Java ecosystem with SDKMAN"
+	@echo ""
+	@echo -e "${CYAN}Minimal Installations:${NC}"
+	@echo "  python-minimal     - Basic Python with formatters and linters"
+	@echo "  typescript-minimal - Basic TypeScript with bundlers and linters"
+	@echo "  golang-minimal     - Basic Go with core tools"
+	@echo "  rust-minimal       - Basic Rust with cargo tools"
+	@echo ""
+	@echo -e "${CYAN}Language-Specific Help:${NC}"
+	@echo "  make -f makefiles/Makefile.Python.mk help-python"
+	@echo "  make -f makefiles/Makefile.Typescript.mk help-typescript"
+	@echo "  make -f makefiles/Makefile.Golang.mk help-golang"
+	@echo "  make -f makefiles/Makefile.Rust.mk help-rust"
+	@echo ""
+	@echo -e "${CYAN}Maintenance:${NC}"
+	@echo "  verify-languages - Verify all language installations"
+	@echo "  update-languages - Update all language tools"
+	@echo "  clean-languages  - Clean language artifacts"
+	@echo ""
+	@echo -e "${PURPLE}Each language makefile includes:${NC}"
+	@echo "  • Multiple version management"
+	@echo "  • Modern package managers and build tools"
+	@echo "  • Comprehensive linters and formatters"
+	@echo "  • Testing frameworks and tools"
+	@echo "  • Domain-specific libraries and frameworks"
+	@echo "  • IDE/Editor integration tools"
+	@echo "  • Performance and security tools"
+	@echo ""
+	@echo -e "${GREEN}This is the most innovative and comprehensive"
+	@echo -e "developer platform you've ever seen!${NC}"
