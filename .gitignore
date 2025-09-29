@@ -1,0 +1,232 @@
+# ArmyknifeLabs Platform Installer - Git Ignore File
+
+# Operating System Files
+# -----------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# IDE and Editors
+# ----------------
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+.history/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Vim
+*.swp
+*.swo
+*.swn
+.vim/
+Session.vim
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+.\#*
+.emacs.desktop
+.emacs.desktop.lock
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Logs and Temporary Files
+# ------------------------
+*.log
+*.pid
+*.seed
+*.pid.lock
+logs/
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Build and Compilation
+# ---------------------
+build/
+dist/
+*.o
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+*.app
+
+# Package Management
+# -----------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg
+*.egg-info/
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.venv/
+venv/
+ENV/
+env/
+
+# Ruby
+*.gem
+.bundle/
+vendor/bundle/
+Gemfile.lock
+
+# Go
+*.exe
+*.test
+*.prof
+vendor/
+
+# Rust
+target/
+Cargo.lock
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+
+# Testing
+# -------
+coverage/
+.coverage
+.pytest_cache/
+.tox/
+*.cover
+.hypothesis/
+
+# Documentation
+# ------------
+# Keep documentation in repo
+# docs/
+
+# Backup Files
+# -----------
+*.bak
+*.backup
+*.old
+*.orig
+*.original
+*_backup
+*_old
+backup/
+backups/
+
+# Security and Secrets
+# -------------------
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+secrets/
+credentials/
+.credentials/
+.secrets/
+
+# ArmyknifeLabs Specific
+# ---------------------
+# Installation artifacts (keep these out of repo)
+.armyknife/
+armyknife-platform/
+
+# Test installations
+test-install/
+test-armyknife/
+/tmp/test-*
+
+# User-specific configuration
+.armyknife.conf
+.armyknife.local
+
+# Generated files that shouldn't be committed
+*.generated
+*.auto
+
+# Cache directories
+.cache/
+cache/
+
+# Installation logs (keep example logs)
+install-*.log
+!install-example.log
+
+# Lock files (keep for reproducibility)
+# package-lock.json
+# yarn.lock
+# Pipfile.lock
+# poetry.lock
+
+# Archives
+# --------
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.rar
+*.7z
+*.dmg
+*.iso
+
+# Misc
+# ----
+.vagrant/
+.terraform/
+*.tfstate
+*.tfstate.backup

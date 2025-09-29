@@ -1,5 +1,5 @@
 # ArmyknifeLabs Platform Installer - Main Orchestrator
-# https://github.com/armyknife-labs/platform-installer
+# https://github.com/armyknife-tools/platform-installer
 #
 # The Ultimate Software Development Workstation Setup System
 # Supports: Ubuntu/Debian, Fedora/RHEL 9+, macOS (Intel & Apple Silicon)
@@ -297,7 +297,7 @@ test:
 # Version information
 version:
 	@echo "ArmyknifeLabs Platform Installer v$(ARMYKNIFE_VERSION)"
-	@echo "Repository: https://github.com/armyknife-labs/platform-installer"
+	@echo "Repository: https://github.com/armyknife-tools/platform-installer"
 
 # Install specific version of a component
 install-%:

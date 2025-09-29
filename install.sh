@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
 # ArmyknifeLabs Platform Installer
-# https://github.com/armyknife-labs/platform-installer
+# https://github.com/armyknife-tools/platform-installer
 #
 # The Ultimate Software Development Workstation Setup System
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/armyknife-labs/platform-installer/main/install.sh | bash
-#   wget -qO- https://raw.githubusercontent.com/armyknife-labs/platform-installer/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/armyknife-tools/platform-installer/main/install.sh | bash
+#   wget -qO- https://raw.githubusercontent.com/armyknife-tools/platform-installer/main/install.sh | bash
 #
 # Advanced Usage:
 #   curl -fsSL https://armyknife.dev/install.sh | bash -s -- --version v1.2.3
@@ -24,7 +24,7 @@
 set -e
 
 # Configuration
-ARMYKNIFE_REPO="${ARMYKNIFE_REPO:-armyknife-labs/platform-installer}"
+ARMYKNIFE_REPO="${ARMYKNIFE_REPO:-armyknife-tools/platform-installer}"
 INSTALL_DIR="${ARMYKNIFE_INSTALL_DIR:-$HOME/armyknife-platform}"
 PROFILE="${ARMYKNIFE_PROFILE:-standard}"
 VERSION="${ARMYKNIFE_VERSION:-latest}"
@@ -399,7 +399,7 @@ Options:
                              Options: minimal, standard, full, custom
   --prefix, -d DIR           Installation directory (default: ~/armyknife-platform)
   --yes, -y                  Non-interactive mode (accept all defaults)
-  --repo, -r REPO           GitHub repository (default: armyknife-labs/platform-installer)
+  --repo, -r REPO           GitHub repository (default: armyknife-tools/platform-installer)
   --help, -h                Show this help message
 
 Examples:

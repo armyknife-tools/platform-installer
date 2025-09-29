@@ -21,13 +21,13 @@ Transform any Linux or macOS machine into a fully-configured development powerho
 
 ```bash
 # One-liner installation (recommended)
-curl -fsSL https://raw.githubusercontent.com/armyknife-labs/platform-installer/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/armyknife-tools/platform-installer/main/install.sh | bash
 
 # Or with wget
-wget -qO- https://raw.githubusercontent.com/armyknife-labs/platform-installer/main/install.sh | bash
+wget -qO- https://raw.githubusercontent.com/armyknife-tools/platform-installer/main/install.sh | bash
 
 # Or clone and install manually
-git clone https://github.com/armyknife-labs/platform-installer.git ~/armyknife-platform
+git clone https://github.com/armyknife-tools/platform-installer.git ~/armyknife-platform
 cd ~/armyknife-platform
 make standard
 ```
@@ -278,10 +278,10 @@ ArmyknifeLabs Platform builds upon many excellent open-source projects:
 
 ## 📞 Support
 
-- 📖 [Documentation](https://github.com/armyknife-labs/platform-installer/wiki)
-- 🐛 [Issue Tracker](https://github.com/armyknife-labs/platform-installer/issues)
-- 💬 [Discussions](https://github.com/armyknife-labs/platform-installer/discussions)
-- ⭐ [Star us on GitHub](https://github.com/armyknife-labs/platform-installer)
+- 📖 [Documentation](https://github.com/armyknife-tools/platform-installer/wiki)
+- 🐛 [Issue Tracker](https://github.com/armyknife-tools/platform-installer/issues)
+- 💬 [Discussions](https://github.com/armyknife-tools/platform-installer/discussions)
+- ⭐ [Star us on GitHub](https://github.com/armyknife-tools/platform-installer)
 
 ---
 
