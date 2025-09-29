@@ -17,10 +17,14 @@ PURPLE := \033[0;35m
 CYAN := \033[0;36m
 NC := \033[0m
 
+# Shell configuration - use bash for all commands
+SHELL := /bin/bash
+.SHELLFLAGS := -ec
+
 # OS detection
 OS_TYPE := $(shell . /etc/os-release 2>/dev/null && echo $$ID || echo macos)
-IS_MACOS := $(shell [[ "$$(uname -s)" == "Darwin" ]] && echo true || echo false)
-IS_LINUX := $(shell [[ "$$(uname -s)" == "Linux" ]] && echo true || echo false)
+IS_MACOS := $(shell if [ "$$(uname -s)" = "Darwin" ]; then echo true; else echo false; fi)
+IS_LINUX := $(shell if [ "$$(uname -s)" = "Linux" ]; then echo true; else echo false; fi)
 ARCH := $(shell uname -m)
 
 # Package manager
@@ -349,20 +353,7 @@ install-gvm:
 		fi; \
 	done
 
-# Rust ecosystem
-install-rust: install-rustup
-	@echo -e "${BLUE}ℹ${NC} Setting up Rust ecosystem..."
-	@# Install Rust toolchains
-	@if command -v rustup &> /dev/null; then \
-		for channel in $(RUST_CHANNELS); do \
-			echo "  Installing Rust $$channel..."; \
-			rustup toolchain install $$channel 2>&1 | tee -a $(LOG_FILE); \
-		done; \
-		rustup default stable 2>&1 | tee -a $(LOG_FILE); \
-		echo "  Installing Rust components..."; \
-		rustup component add rustfmt clippy rust-analyzer 2>&1 | tee -a $(LOG_FILE); \
-	fi
-	@echo -e "${GREEN}✓${NC} Rust ecosystem configured"
+# Rust ecosystem - removed (now handled by Makefile.Rust.mk)
 
 # Install rustup
 install-rustup:

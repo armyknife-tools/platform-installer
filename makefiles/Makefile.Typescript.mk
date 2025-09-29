@@ -19,10 +19,14 @@ PURPLE := \033[0;35m
 CYAN := \033[0;36m
 NC := \033[0m
 
+# Shell configuration - use bash for all commands
+SHELL := /bin/bash
+.SHELLFLAGS := -ec
+
 # OS detection
 OS_TYPE := $(shell . /etc/os-release 2>/dev/null && echo $$ID || echo macos)
-IS_MACOS := $(shell [[ "$$(uname -s)" == "Darwin" ]] && echo true || echo false)
-IS_LINUX := $(shell [[ "$$(uname -s)" == "Linux" ]] && echo true || echo false)
+IS_MACOS := $(shell if [ "$$(uname -s)" = "Darwin" ]; then echo true; else echo false; fi)
+IS_LINUX := $(shell if [ "$$(uname -s)" = "Linux" ]; then echo true; else echo false; fi)
 ARCH := $(shell uname -m)
 
 # Node versions
@@ -60,7 +64,7 @@ minimal: install-system-deps install-fnm install-node-versions install-pnpm \
 # Install system dependencies
 install-system-deps:
 	@echo -e "${BLUE}ℹ${NC} Installing TypeScript/JavaScript system dependencies..."
-	@mkdir -p $(LOG_FILE:dir)
+	@mkdir -p $$(dirname $(LOG_FILE))
 ifeq ($(OS_TYPE),ubuntu)
 	@sudo apt update && sudo apt install -y \
 		build-essential python3 make gcc g++ \
