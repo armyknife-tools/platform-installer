@@ -470,7 +470,8 @@ main() {
     post_install_message
 }
 
-# Run main function if script is executed directly
-if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+# Run main function if script is executed directly or piped
+# When piped through curl | bash, BASH_SOURCE might be empty
+if [ "${BASH_SOURCE[0]}" = "${0}" ] || [ -z "${BASH_SOURCE[0]}" ]; then
     main "$@"
 fi
