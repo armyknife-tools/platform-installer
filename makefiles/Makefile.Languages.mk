@@ -64,8 +64,15 @@ SDKMAN_INSTALLER := https://get.sdkman.io
     install-python install-typescript install-golang install-rust install-java \
     verify-languages update-languages clean-languages help-languages
 
-# Main target - install all language ecosystems
-all: python typescript golang rust java verify-languages
+# Main target - install essential language tools (not everything!)
+# For standard/full installations, we install minimal versions to keep it reasonable
+all: all-minimal verify-languages
+
+# Complete installation - everything for power users (manual trigger only)
+all-complete: python typescript golang rust java verify-languages
+
+# Minimal installation - essential tools for each language
+all-minimal: python-minimal typescript-minimal golang-minimal rust-minimal java verify-languages
 
 # Minimal installation - just Python and TypeScript
 minimal: python-minimal typescript-minimal verify-languages
@@ -533,8 +540,9 @@ help-languages:
 	@echo "The most comprehensive language development environments ever created"
 	@echo ""
 	@echo -e "${CYAN}Main Targets:${NC}"
-	@echo "  all      - Install ALL language ecosystems (Python, TypeScript, Go, Rust, Java)"
-	@echo "  minimal  - Install Python and TypeScript with essential tools only"
+	@echo "  all         - Install essential tools for all languages (DEFAULT - fast)"
+	@echo "  all-complete - Install EVERYTHING for all languages (WARNING: 2+ hours)"
+	@echo "  minimal     - Install only Python and TypeScript essentials"
 	@echo ""
 	@echo -e "${CYAN}Individual Languages:${NC}"
 	@echo "  python      - Complete Python ecosystem (AI/ML, Data Science, Security, Cloud)"
