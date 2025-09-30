@@ -143,8 +143,10 @@ ifeq ($(PACKAGE_MANAGER),apt)
 		build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
 		libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
 		xz-utils tk-dev libffi-dev liblzma-dev python3-openssl git \
+		python3-venv python3-pip python3-dev python3-full \
+		python3.10-venv python3.11-venv python3.12-venv python3.13-venv 2>/dev/null || true \
 		libxml2-dev libxmlsec1-dev libffi-dev libcairo2-dev libgirepository1.0-dev \
-		pkg-config python3-dev libpq-dev libmysqlclient-dev \
+		pkg-config libpq-dev libmysqlclient-dev \
 		libhdf5-dev libnetcdf-dev libopenblas-dev liblapack-dev gfortran \
 		cmake ninja-build ccache swig \
 		graphviz pandoc texlive-xetex texlive-fonts-recommended \
