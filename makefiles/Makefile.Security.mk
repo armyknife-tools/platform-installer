@@ -87,6 +87,17 @@ install-password-managers:
 			npm install -g @bitwarden/cli; \
 		fi; \
 	fi
+	@# LastPass CLI
+	@if ! command -v lpass &> /dev/null; then \
+		echo "  Installing LastPass CLI..."; \
+		if [ "$(IS_MACOS)" = "true" ]; then \
+			brew install lastpass-cli; \
+		elif [ "$(PACKAGE_MANAGER)" = "apt" ]; then \
+			$(SUDO) apt install -y lastpass-cli; \
+		elif [ "$(PACKAGE_MANAGER)" = "dnf" ]; then \
+			$(SUDO) dnf install -y lastpass-cli; \
+		fi; \
+	fi
 	@echo -e "${GREEN}✓${NC} Password managers installed"
 
 install-secret-scanners:
