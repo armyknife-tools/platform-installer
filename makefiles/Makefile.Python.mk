@@ -26,15 +26,25 @@ SHELL := /bin/bash
 
 # OS detection
 OS_TYPE := $(shell . /etc/os-release 2>/dev/null && echo $$ID || echo macos)
+OS_LIKE := $(shell . /etc/os-release 2>/dev/null && echo $$ID_LIKE || echo "")
 IS_MACOS := $(shell if [ "$$(uname -s)" = "Darwin" ]; then echo true; else echo false; fi)
 IS_LINUX := $(shell if [ "$$(uname -s)" = "Linux" ]; then echo true; else echo false; fi)
 ARCH := $(shell uname -m)
 
-# Package manager
+# Package manager - also check ID_LIKE for derivatives
 ifeq ($(OS_TYPE),ubuntu)
     PACKAGE_MANAGER := apt
     SUDO := sudo
+else ifeq ($(OS_TYPE),linuxmint)
+    PACKAGE_MANAGER := apt
+    SUDO := sudo
 else ifeq ($(OS_TYPE),debian)
+    PACKAGE_MANAGER := apt
+    SUDO := sudo
+else ifneq (,$(findstring ubuntu,$(OS_LIKE)))
+    PACKAGE_MANAGER := apt
+    SUDO := sudo
+else ifneq (,$(findstring debian,$(OS_LIKE)))
     PACKAGE_MANAGER := apt
     SUDO := sudo
 else ifeq ($(OS_TYPE),fedora)
@@ -175,18 +185,11 @@ install-python-versions:
 	@if [ -d "$$HOME/.pyenv" ]; then \
 		export PYENV_ROOT="$$HOME/.pyenv" && \
 		export PATH="$$PYENV_ROOT/bin:$$PATH" && \
-		eval "$$($$HOME/.pyenv/bin/pyenv init --path)" && \
 		for version in $(PYTHON_VERSIONS); do \
-			if ! $$HOME/.pyenv/bin/pyenv versions | grep -q $$version; then \
-				echo "  Attempting to install Python $$version..."; \
-				CONFIGURE_OPTS="--enable-optimizations --with-lto --enable-loadable-sqlite-extensions" \
-				PYTHON_CFLAGS="-march=native -O3" \
-				$$HOME/.pyenv/bin/pyenv install -s $$version 2>&1 | tee -a $(LOG_FILE) || \
-				echo -e "  ${YELLOW}⚠${NC} Failed to install Python $$version, continuing..."; \
-			else \
-				echo -e "  ${GREEN}✓${NC} Python $$version already installed"; \
-			fi; \
+			$(SHELL) scripts/install-python-pyenv.sh $$version 2>&1 | tee -a $(LOG_FILE) || \
+			echo -e "  ${YELLOW}⚠${NC} Failed to install Python $$version, continuing..."; \
 		done; \
+		eval "$$($$HOME/.pyenv/bin/pyenv init --path)" && \
 		if $$HOME/.pyenv/bin/pyenv versions | grep -q "3.12"; then \
 			$$HOME/.pyenv/bin/pyenv global 3.12.7 2>/dev/null || $$HOME/.pyenv/bin/pyenv global system; \
 		else \
