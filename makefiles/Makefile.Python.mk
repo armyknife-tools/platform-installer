@@ -46,8 +46,10 @@ else ifeq ($(IS_MACOS),true)
 endif
 
 # Python versions to install (comprehensive coverage)
-PYTHON_VERSIONS := 3.9.20 3.10.15 3.11.10 3.12.7 3.13.0
-DEFAULT_PYTHON := 3.12.7
+# Note: Older versions may fail on newer systems due to SSL/pip issues
+# Using system Python as fallback
+PYTHON_VERSIONS := 3.11.10 3.12.7
+DEFAULT_PYTHON := system
 
 # Core Python tools
 PYENV_INSTALLER := https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer
@@ -144,22 +146,31 @@ install-pyenv:
 # Install Python versions
 install-python-versions:
 	@echo -e "${BLUE}ℹ${NC} Installing Python versions..."
-	@export PYENV_ROOT="$$HOME/.pyenv" && \
-	export PATH="$$PYENV_ROOT/bin:$$PATH" && \
-	eval "$$($$HOME/.pyenv/bin/pyenv init --path)" && \
-	for version in $(PYTHON_VERSIONS); do \
-		if ! $$HOME/.pyenv/bin/pyenv versions | grep -q $$version; then \
-			echo "  Installing Python $$version..."; \
-			CONFIGURE_OPTS="--enable-optimizations --with-lto --enable-loadable-sqlite-extensions" \
-			PYTHON_CFLAGS="-march=native -O3" \
-			$$HOME/.pyenv/bin/pyenv install $$version 2>&1 | tee -a $(LOG_FILE); \
+	@if [ -d "$$HOME/.pyenv" ]; then \
+		export PYENV_ROOT="$$HOME/.pyenv" && \
+		export PATH="$$PYENV_ROOT/bin:$$PATH" && \
+		eval "$$($$HOME/.pyenv/bin/pyenv init --path)" && \
+		for version in $(PYTHON_VERSIONS); do \
+			if ! $$HOME/.pyenv/bin/pyenv versions | grep -q $$version; then \
+				echo "  Attempting to install Python $$version..."; \
+				CONFIGURE_OPTS="--enable-optimizations --with-lto --enable-loadable-sqlite-extensions" \
+				PYTHON_CFLAGS="-march=native -O3" \
+				$$HOME/.pyenv/bin/pyenv install -s $$version 2>&1 | tee -a $(LOG_FILE) || \
+				echo -e "  ${YELLOW}⚠${NC} Failed to install Python $$version, continuing..."; \
+			else \
+				echo -e "  ${GREEN}✓${NC} Python $$version already installed"; \
+			fi; \
+		done; \
+		if $$HOME/.pyenv/bin/pyenv versions | grep -q "3.12"; then \
+			$$HOME/.pyenv/bin/pyenv global 3.12.7 2>/dev/null || $$HOME/.pyenv/bin/pyenv global system; \
 		else \
-			echo -e "  ${GREEN}✓${NC} Python $$version already installed"; \
+			$$HOME/.pyenv/bin/pyenv global system; \
 		fi; \
-	done
-	@$$HOME/.pyenv/bin/pyenv global $(DEFAULT_PYTHON)
-	@$$HOME/.pyenv/bin/pyenv rehash
-	@echo -e "${GREEN}✓${NC} Python versions installed"
+		$$HOME/.pyenv/bin/pyenv rehash; \
+	else \
+		echo -e "${YELLOW}⚠${NC} pyenv not installed, using system Python"; \
+	fi
+	@echo -e "${GREEN}✓${NC} Python setup complete"
 
 # Install uv (Astral's ultra-fast Python package manager)
 install-uv:
