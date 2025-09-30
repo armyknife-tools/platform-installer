@@ -46,16 +46,16 @@ NI_NPM := @antfu/ni
 # Phony targets
 .PHONY: all minimal install-system-deps install-fnm install-nvm install-volta \
         install-node-versions install-pnpm install-yarn install-bun install-ni \
-        install-typescript install-bundlers install-frameworks install-testing \
-        install-linters install-mobile install-desktop install-backend \
+        install-typescript install-modern-tools install-bundlers install-frameworks \
+        install-testing install-linters install-mobile install-desktop install-backend \
         install-devtools install-build-tools configure-npm create-projects verify-typescript
 
 # Main target - install everything
 all: install-system-deps install-fnm install-node-versions install-pnpm \
-     install-yarn install-bun install-ni install-typescript install-bundlers \
-     install-frameworks install-testing install-linters install-mobile \
-     install-desktop install-backend install-devtools install-build-tools \
-     configure-npm create-projects verify-typescript
+     install-yarn install-bun install-ni install-typescript install-modern-tools \
+     install-bundlers install-frameworks install-testing install-linters \
+     install-mobile install-desktop install-backend install-devtools \
+     install-build-tools configure-npm create-projects verify-typescript
 
 # Minimal installation
 minimal: install-system-deps install-fnm install-node-versions install-pnpm \
@@ -192,8 +192,31 @@ install-typescript:
 	@npm install -g tsup  # Bundle TypeScript libraries
 	@npm install -g tsc-watch
 	@npm install -g typescript-language-server
-	@npm install -g @biomejs/biome  # Fast formatter/linter
 	@echo -e "${GREEN}✓${NC} TypeScript ecosystem installed"
+
+# Install modern cutting-edge tools (2024-2025)
+install-modern-tools:
+	@echo -e "${BLUE}ℹ${NC} Installing modern JavaScript/TypeScript tools..."
+	@# Rust-based toolchain
+	@npm install -g @biomejs/biome  # Fast formatter/linter written in Rust
+	@npm install -g @oxlint/cli 2>/dev/null || true  # Rust-based linter
+	@# Modern testing
+	@npm install -g vitest  # Fast Vite-native test runner
+	@npm install -g @playwright/test playwright  # Modern end-to-end testing
+	@# Lightning CSS
+	@npm install -g lightningcss-cli  # Extremely fast CSS transformer
+	@# Package management
+	@curl -fsSL https://get.volta.sh | bash 2>/dev/null || true  # JS toolchain manager
+	@# Runtime alternatives
+	@curl -fsSL https://deno.land/install.sh | sh 2>/dev/null || true  # Deno runtime
+	@# SSR/SSG frameworks
+	@npm install -g solid-start  # SolidJS meta-framework
+	@npm install -g @analogjs/cli  # Angular meta-framework
+	@npm install -g qwik  # Resumable framework
+	@# Build optimization
+	@npm install -g million  # Optimizing compiler for React
+	@npm install -g unplugin-auto-import unplugin-vue-components  # Auto imports
+	@echo -e "${GREEN}✓${NC} Modern tools installed"
 
 # Install bundlers and build tools
 install-bundlers:

@@ -50,15 +50,15 @@ endif
 
 # Phony targets
 .PHONY: all minimal install-system-deps install-gvm install-g install-go-versions \
-        install-core-tools install-web-frameworks install-cli-tools install-testing \
-        install-linters install-cloud-native install-database-tools install-devops \
-        install-security-tools install-performance-tools install-build-tools \
+        install-core-tools install-web-frameworks install-modern-tools install-cli-tools \
+        install-testing install-linters install-cloud-native install-database-tools \
+        install-devops install-security-tools install-performance-tools install-build-tools \
         configure-go create-projects verify-golang
 
 # Main target - install everything
 all: install-system-deps install-gvm install-go-versions install-core-tools \
-     install-web-frameworks install-cli-tools install-testing install-linters \
-     install-cloud-native install-database-tools install-devops \
+     install-web-frameworks install-modern-tools install-cli-tools install-testing \
+     install-linters install-cloud-native install-database-tools install-devops \
      install-security-tools install-performance-tools install-build-tools \
      configure-go create-projects verify-golang
 
@@ -190,13 +190,41 @@ install-web-frameworks:
 	@go install github.com/dunglas/mercure/cmd/mercure@latest
 	@echo -e "${GREEN}✓${NC} Web frameworks installed"
 
+# Install modern cutting-edge tools (2024-2025)
+install-modern-tools:
+	@echo -e "${BLUE}ℹ${NC} Installing modern Go tools..."
+	@# Terminal UI frameworks (Charm tools)
+	@go install github.com/charmbracelet/bubbletea@latest
+	@go install github.com/charmbracelet/bubbles/...@latest
+	@go install github.com/charmbracelet/lipgloss@latest
+	@go install github.com/charmbracelet/huh@latest  # Forms and inputs
+	@go install github.com/charmbracelet/log@latest  # Structured logging
+	@go install github.com/charmbracelet/wish@latest  # SSH apps
+	@go install github.com/charmbracelet/vhs@latest  # Terminal recorder
+	@# Modern web frameworks
+	@go install github.com/a-h/templ/cmd/templ@latest  # HTML templating
+	@# Database tools
+	@go install github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+	@go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest  # Type-safe SQL
+	@go install github.com/pressly/goose/v3/cmd/goose@latest  # Migrations
+	@go install entgo.io/ent/cmd/ent@latest  # Entity framework
+	@# Development tools
+	@go install github.com/air-verse/air@latest  # Live reload
+	@go install github.com/cweill/gotests/gotests@latest  # Test generation
+	@go install github.com/fatih/gomodifytags@latest  # Struct tag editor
+	@go install github.com/josharian/impl@latest  # Interface implementation
+	@go install github.com/go-task/task/v3/cmd/task@latest  # Task runner
+	@# Desktop/Mobile apps
+	@go install fyne.io/fyne/v2/cmd/fyne@latest  # Cross-platform GUI
+	@go install github.com/wailsapp/wails/v2/cmd/wails@latest 2>/dev/null || true  # Desktop apps
+	@echo -e "${GREEN}✓${NC} Modern tools installed"
+
 # Install CLI tools
 install-cli-tools:
 	@echo -e "${BLUE}ℹ${NC} Installing CLI development tools..."
 	@go install github.com/spf13/cobra-cli@latest  # CLI framework
 	@go install github.com/urfave/cli/v2@latest 2>/dev/null || true
 	@go install github.com/alecthomas/kingpin/v2@latest 2>/dev/null || true
-	@go install github.com/charmbracelet/bubbletea@latest 2>/dev/null || true
 	@go install github.com/charmbracelet/glow@latest  # Markdown renderer
 	@go install github.com/charmbracelet/gum@latest  # Shell scripting
 	@go install github.com/charmbracelet/soft-serve/cmd/soft@latest  # Git server

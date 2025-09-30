@@ -81,8 +81,8 @@ endif
 # Phony targets
 .PHONY: all install-system-deps install-pyenv install-uv install-poetry install-conda \
         install-mamba install-pipx install-python-versions install-formatters \
-        install-linters install-testers install-ml-frameworks install-data-science \
-        install-cybersecurity install-cloud-tools install-web-frameworks \
+        install-modern-tools install-linters install-testers install-ml-frameworks \
+        install-data-science install-cybersecurity install-cloud-tools install-web-frameworks \
         install-devtools install-jupyter configure-python verify-python \
         create-environments help-python
 
@@ -92,8 +92,8 @@ endif
 # Main target - install everything
 all: install-system-deps install-pyenv install-python-versions install-uv \
      install-poetry install-conda install-mamba install-pipx install-formatters \
-     install-linters install-testers install-ml-frameworks install-data-science \
-     install-cybersecurity install-cloud-tools install-web-frameworks \
+     install-modern-tools install-linters install-testers install-ml-frameworks \
+     install-data-science install-cybersecurity install-cloud-tools install-web-frameworks \
      install-devtools install-jupyter configure-python create-environments verify-python
 
 # Minimal install for quick setup
@@ -314,13 +314,49 @@ install-pipx:
 # Install Python formatters
 install-formatters:
 	@echo -e "${BLUE}ℹ${NC} Installing Python formatters..."
+	@uv tool install ruff --with ruff-lsp  # Ultra-fast Rust-based linter/formatter
 	@pipx install black
 	@pipx install isort
 	@pipx install autopep8
 	@pipx install yapf
 	@pipx install blue  # Black but with single quotes
-	@uv tool install ruff --with ruff-lsp
 	@echo -e "${GREEN}✓${NC} Formatters installed"
+
+# Install cutting-edge Python tools (2024-2025 innovations)
+install-modern-tools:
+	@echo -e "${BLUE}ℹ${NC} Installing modern Python tools..."
+	@# Package management
+	@echo -e "${YELLOW}Installing Pixi (conda-forge package manager)...${NC}"
+	@curl -fsSL https://pixi.sh/install.sh | bash 2>/dev/null || true
+	@# Build tools
+	@pipx install maturin  # Build/publish Rust-based Python extensions
+	@pipx install hatch  # Modern Python project management
+	@pipx install pdm  # Modern Python package manager
+	@# Data tools
+	@uv tool install polars  # Lightning-fast DataFrame library
+	@pipx install duckdb  # In-process SQL OLAP database
+	@# Type checking and validation
+	@pipx install pydantic  # Data validation using Python type annotations
+	@pipx install pydantic-ai  # AI framework from Pydantic team
+	@pipx install mypy
+	@pipx install pyright
+	@pipx install beartype  # Runtime type checking
+	@# Performance tools
+	@pipx install scalene  # High-performance CPU/GPU/memory profiler
+	@pipx install memray  # Memory profiler by Bloomberg
+	@pipx install py-spy  # Sampling profiler
+	@pipx install austin  # Frame stack sampler
+	@# Modern web frameworks
+	@pipx install litestar  # High-performance ASGI framework
+	@pipx install "fastapi[all]"
+	@pipx install reflex  # Full-stack Python framework
+	@# AI/LLM tools
+	@pipx install langchain
+	@pipx install llama-index
+	@pipx install instructor  # Structured extraction with LLMs
+	@pipx install marvin  # AI engineering toolkit
+	@pipx install outlines  # Structured text generation
+	@echo -e "${GREEN}✓${NC} Modern tools installed"
 
 # Install Python linters
 install-linters:

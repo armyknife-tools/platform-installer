@@ -40,15 +40,15 @@ RUSTUP_INSTALLER := https://sh.rustup.rs
 # Phony targets
 .PHONY: all minimal install-system-deps install-rustup install-toolchains \
         install-components install-cargo-tools install-dev-tools install-web-tools \
-        install-wasm-tools install-embedded-tools install-cli-tools install-testing \
-        install-linters install-security-tools install-performance-tools \
+        install-modern-tools install-wasm-tools install-embedded-tools install-cli-tools \
+        install-testing install-linters install-security-tools install-performance-tools \
         install-build-tools configure-rust create-projects verify-rust
 
 # Main target - install everything
 all: install-system-deps install-rustup install-toolchains install-components \
-     install-cargo-tools install-dev-tools install-web-tools install-wasm-tools \
-     install-embedded-tools install-cli-tools install-testing install-linters \
-     install-security-tools install-performance-tools install-build-tools \
+     install-cargo-tools install-dev-tools install-web-tools install-modern-tools \
+     install-wasm-tools install-embedded-tools install-cli-tools install-testing \
+     install-linters install-security-tools install-performance-tools install-build-tools \
      configure-rust create-projects verify-rust
 
 # Minimal installation
@@ -199,6 +199,48 @@ install-web-tools:
 	@cargo install diesel_cli --no-default-features --features postgres,sqlite,mysql
 	@cargo install sea-orm-cli  # SeaORM migrations
 	@echo -e "${GREEN}✓${NC} Web tools installed"
+
+# Install modern cutting-edge tools (2024-2025)
+install-modern-tools:
+	@echo -e "${BLUE}ℹ${NC} Installing modern Rust tools..."
+	@# Terminal UI and editors
+	@cargo install helix 2>/dev/null || true  # Modern modal text editor
+	@cargo install zellij  # Terminal workspace/multiplexer
+	@cargo install atuin  # Shell history with sync
+	@cargo install gitui  # Git TUI
+	@# Cross-platform apps
+	@cargo install tauri-cli  # Tauri CLI for desktop apps
+	@cargo install create-tauri-app  # Tauri app scaffolding
+	@# Development tools
+	@cargo install bacon  # Background compiler
+	@cargo install watchexec-cli  # File watcher
+	@cargo install cargo-nextest  # Next-gen test runner
+	@cargo install cargo-llvm-lines  # Count LLVM IR lines
+	@cargo install cargo-semver-checks  # Semver checking
+	@cargo install cargo-machete  # Find unused dependencies
+	@cargo install cargo-deny  # Supply chain security
+	@cargo install cargo-pants  # Workspace utilities
+	@cargo install cargo-chef  # Docker layer caching
+	@cargo install cargo-dist  # Binary distribution
+	@cargo install cargo-release  # Release automation
+	@# Performance tools
+	@cargo install flamegraph  # Performance profiling
+	@cargo install cargo-flamegraph  # Cargo integration
+	@cargo install samply  # Profile visualizer
+	@cargo install poop  # Performance comparison
+	@cargo install dhat  # Heap profiling
+	@# Build optimization
+	@cargo install cargo-wizard  # Build optimization wizard
+	@cargo install sccache  # Compilation cache
+	@cargo install cargo-hakari  # Workspace hack management
+	@cargo install cargo-sweep  # Clean old build artifacts
+	@# Modern CLI tools
+	@cargo install nushell  # Modern shell
+	@cargo install just  # Command runner
+	@cargo install tokei  # Code statistics
+	@cargo install gping  # Ping with graph
+	@cargo install oha  # HTTP load testing
+	@echo -e "${GREEN}✓${NC} Modern tools installed"
 
 # Install WebAssembly tools
 install-wasm-tools:
