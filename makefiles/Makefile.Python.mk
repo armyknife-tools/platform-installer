@@ -76,6 +76,9 @@ endif
         install-devtools install-jupyter configure-python verify-python \
         create-environments help-python
 
+# IMPORTANT: System dependencies are REQUIRED for Python builds to work
+# They are now the first step in all installation profiles
+
 # Main target - install everything
 all: install-system-deps install-pyenv install-python-versions install-uv \
      install-poetry install-conda install-mamba install-pipx install-formatters \
@@ -87,11 +90,34 @@ all: install-system-deps install-pyenv install-python-versions install-uv \
 minimal: install-system-deps install-pyenv install-python-versions install-uv \
          install-pipx install-formatters install-linters configure-python
 
+# Prerequisites only - useful for testing
+prereqs: install-system-deps
+
+# Check if prerequisites are installed
+check-prereqs:
+	@echo -e "${BLUE}ℹ${NC} Checking Python build prerequisites..."
+	@missing=""; \
+	for pkg in build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
+	           libsqlite3-dev libffi-dev liblzma-dev; do \
+		if ! dpkg -l | grep -q "^ii  $$pkg"; then \
+			missing="$$missing $$pkg"; \
+		fi; \
+	done; \
+	if [ -n "$$missing" ]; then \
+		echo -e "${RED}✗${NC} Missing packages:$$missing"; \
+		echo -e "${YELLOW}Run 'make prereqs' or 'sudo apt install$$missing'${NC}"; \
+		exit 1; \
+	else \
+		echo -e "${GREEN}✓${NC} All prerequisites installed"; \
+	fi
+
 # Install system dependencies
 install-system-deps:
 	@echo -e "${BLUE}ℹ${NC} Installing Python system dependencies..."
+	@echo -e "${YELLOW}⚠${NC} This requires sudo access to install system packages"
 	@mkdir -p $$(dirname $(LOG_FILE))
 ifeq ($(PACKAGE_MANAGER),apt)
+	@echo "Installing essential build dependencies for Python..."
 	@$(SUDO) apt update && $(SUDO) apt install -y \
 		build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
 		libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
@@ -120,7 +146,8 @@ endif
 	@echo -e "${GREEN}✓${NC} System dependencies installed"
 
 # Install pyenv for Python version management
-install-pyenv:
+# Now depends on system deps to ensure prerequisites are installed
+install-pyenv: install-system-deps
 	@echo -e "${BLUE}ℹ${NC} Installing pyenv..."
 	@if [ -d "$$HOME/.pyenv" ]; then \
 		echo -e "${GREEN}✓${NC} pyenv already installed"; \
