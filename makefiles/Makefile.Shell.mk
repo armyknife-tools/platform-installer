@@ -6,6 +6,7 @@
 
 # Import parent variables
 ARMYKNIFE_DIR ?= $(HOME)/.armyknife
+ARMYKNIFE_CONFIG_DIR := $(ARMYKNIFE_DIR)/config
 LOG_FILE ?= $(ARMYKNIFE_DIR)/logs/install-$(shell date +%Y%m%d-%H%M%S).log
 
 # Colors
@@ -23,10 +24,14 @@ ifeq ($(shell echo $$SHELL | grep -c zsh),1)
     SHELL_TYPE := zsh
 endif
 
+# Shell configuration - use bash for all commands
+SHELL := /bin/bash
+.SHELLFLAGS := -ec
+
 # OS detection (from Base.mk)
 OS_TYPE := $(shell . /etc/os-release 2>/dev/null && echo $$ID || echo macos)
-IS_MACOS := $(shell [[ "$$(uname -s)" == "Darwin" ]] && echo true || echo false)
-IS_LINUX := $(shell [[ "$$(uname -s)" == "Linux" ]] && echo true || echo false)
+IS_MACOS := $(shell if [ "$$(uname -s)" = "Darwin" ]; then echo true; else echo false; fi)
+IS_LINUX := $(shell if [ "$$(uname -s)" = "Linux" ]; then echo true; else echo false; fi)
 
 # Sudo command
 ifeq ($(IS_MACOS),true)

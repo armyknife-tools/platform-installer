@@ -73,7 +73,7 @@ NEO4J_VERSION := 5
         install-cassandra install-neo4j install-influxdb install-timescaledb \
         install-duckdb install-clickhouse install-tools install-gui-tools \
         install-cli-tools install-migration-tools install-backup-tools \
-        install-monitoring configure-databases create-users setup-examples \
+        install-database-monitoring configure-databases create-users setup-examples \
         verify-databases help-database start-services stop-services
 
 # Main target - install everything
@@ -435,8 +435,8 @@ endif
 	fi
 	@echo -e "${GREEN}✓${NC} Backup tools installed"
 
-# Install monitoring tools
-install-monitoring:
+# Install database monitoring tools
+install-database-monitoring:
 	@echo -e "${BLUE}ℹ${NC} Installing database monitoring tools..."
 	@# pg_stat_statements and extensions
 	@if command -v psql &> /dev/null; then \
@@ -619,7 +619,7 @@ help-database:
 	@echo "  install-gui-tools       - DBeaver, pgAdmin, TablePlus"
 	@echo "  install-migration-tools - Flyway, Liquibase, Prisma"
 	@echo "  install-backup-tools    - Backup and restore utilities"
-	@echo "  install-monitoring      - Database monitoring tools"
+	@echo "  install-database-monitoring - Database monitoring tools"
 	@echo ""
 	@echo "Management:"
 	@echo "  configure-databases - Configure all databases"

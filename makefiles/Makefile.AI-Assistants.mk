@@ -57,7 +57,7 @@ endif
 # URLs for downloads
 VSCODE_URL := https://code.visualstudio.com/sha/download?build=stable&os=linux-x64
 CURSOR_URL := https://downloader.cursor.sh/linux/appImage/x64
-WINDSURF_URL := https://windsurf-stable.codeiumdata.com/linux/windsurf.tar.gz
+WINDSURF_URL := https://windsurf.com/download/editor?os=linux
 WINDSURF_GPG := https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/windsurf.gpg
 CONTINUE_URL := https://continue.dev/install.sh
 ZEDITOR_URL := https://zed.dev/install.sh
@@ -212,9 +212,24 @@ install-windsurf:
 	else \
 		mkdir -p $(HOME)/.local/bin; \
 		if [ "$(IS_LINUX)" = "true" ]; then \
-			wget -O /tmp/windsurf.tar.gz "$(WINDSURF_URL)"; \
-			tar -xzf /tmp/windsurf.tar.gz -C $(HOME)/.local/bin/; \
-			rm /tmp/windsurf.tar.gz; \
+			echo -e "${YELLOW}Downloading Windsurf...${NC}"; \
+			wget --content-disposition -O /tmp/windsurf-download "$(WINDSURF_URL)" 2>/dev/null || { \
+				echo -e "${YELLOW}⚠ Windsurf download failed.${NC}"; \
+				echo -e "${YELLOW}Please install manually from: https://windsurf.com/download/editor${NC}"; \
+				false; \
+			}; \
+			if [ -f /tmp/windsurf-download ]; then \
+				FILE_TYPE=$$(file -b /tmp/windsurf-download | cut -d' ' -f1); \
+				if echo "$$FILE_TYPE" | grep -q "Debian"; then \
+					$(SUDO) dpkg -i /tmp/windsurf-download 2>/dev/null || $(SUDO) apt-get install -f -y; \
+				elif echo "$$FILE_TYPE" | grep -q "gzip"; then \
+					tar -xzf /tmp/windsurf-download -C $(HOME)/.local/bin/; \
+				elif echo "$$FILE_TYPE" | grep -q "AppImage"; then \
+					mv /tmp/windsurf-download $(HOME)/.local/bin/windsurf; \
+					chmod +x $(HOME)/.local/bin/windsurf; \
+				fi; \
+				rm -f /tmp/windsurf-download; \
+			fi; \
 		elif [ "$(IS_MACOS)" = "true" ]; then \
 			brew install --cask windsurf || { \
 				echo -e "${YELLOW}Installing via direct download...${NC}"; \

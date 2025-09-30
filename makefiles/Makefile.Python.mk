@@ -616,51 +616,48 @@ configure-python:
 	@mkdir -p ~/.config/mypy
 	@mkdir -p $(PYTHON_DIR)/{envs,projects,notebooks}
 	@# Pip configuration
-	@cat > ~/.config/pip/pip.conf <<-EOF
-		[global]
-		user = true
-		break-system-packages = true
-		timeout = 60
-		index-url = https://pypi.org/simple
-		extra-index-url = https://pypi.python.org/simple
-		trusted-host = pypi.org pypi.python.org
-
-		[install]
-		compile = true
-		progress-bar = on
-
-		[list]
-		format = columns
-	EOF
+	@echo "Creating pip configuration..."
+	@echo "[global]" > ~/.config/pip/pip.conf
+	@echo "user = true" >> ~/.config/pip/pip.conf
+	@echo "break-system-packages = true" >> ~/.config/pip/pip.conf
+	@echo "timeout = 60" >> ~/.config/pip/pip.conf
+	@echo "index-url = https://pypi.org/simple" >> ~/.config/pip/pip.conf
+	@echo "extra-index-url = https://pypi.python.org/simple" >> ~/.config/pip/pip.conf
+	@echo "trusted-host = pypi.org pypi.python.org" >> ~/.config/pip/pip.conf
+	@echo "" >> ~/.config/pip/pip.conf
+	@echo "[install]" >> ~/.config/pip/pip.conf
+	@echo "compile = true" >> ~/.config/pip/pip.conf
+	@echo "progress-bar = on" >> ~/.config/pip/pip.conf
+	@echo "" >> ~/.config/pip/pip.conf
+	@echo "[list]" >> ~/.config/pip/pip.conf
+	@echo "format = columns" >> ~/.config/pip/pip.conf
 	@# Ruff configuration
-	@cat > ~/.config/ruff/ruff.toml <<-EOF
-		line-length = 100
-		target-version = "py312"
-
-		[lint]
-		select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM", "RUF"]
-		ignore = ["E501"]
-
-		[format]
-		quote-style = "double"
-		indent-style = "space"
-		docstring-code-format = true
-	EOF
+	@echo "Creating ruff configuration..."
+	@echo 'line-length = 100' > ~/.config/ruff/ruff.toml
+	@echo 'target-version = "py312"' >> ~/.config/ruff/ruff.toml
+	@echo '' >> ~/.config/ruff/ruff.toml
+	@echo '[lint]' >> ~/.config/ruff/ruff.toml
+	@echo 'select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM", "RUF"]' >> ~/.config/ruff/ruff.toml
+	@echo 'ignore = ["E501"]' >> ~/.config/ruff/ruff.toml
+	@echo '' >> ~/.config/ruff/ruff.toml
+	@echo '[format]' >> ~/.config/ruff/ruff.toml
+	@echo 'quote-style = "double"' >> ~/.config/ruff/ruff.toml
+	@echo 'indent-style = "space"' >> ~/.config/ruff/ruff.toml
+	@echo 'docstring-code-format = true' >> ~/.config/ruff/ruff.toml
 	@# MyPy configuration
-	@cat > ~/.config/mypy/config <<-EOF
-		[mypy]
-		python_version = 3.12
-		warn_return_any = True
-		warn_unused_configs = True
-		disallow_untyped_defs = True
-		disallow_any_unimported = True
-		no_implicit_optional = True
-		warn_redundant_casts = True
-		warn_unused_ignores = True
-		warn_no_return = True
-		warn_unreachable = True
-		strict_equality = True
-	EOF
+	@echo "Creating mypy configuration..."
+	@echo '[mypy]' > ~/.config/mypy/config
+	@echo 'python_version = 3.12' >> ~/.config/mypy/config
+	@echo 'warn_return_any = True' >> ~/.config/mypy/config
+	@echo 'warn_unused_configs = True' >> ~/.config/mypy/config
+	@echo 'disallow_untyped_defs = True' >> ~/.config/mypy/config
+	@echo 'disallow_any_unimported = True' >> ~/.config/mypy/config
+	@echo 'no_implicit_optional = True' >> ~/.config/mypy/config
+	@echo 'warn_redundant_casts = True' >> ~/.config/mypy/config
+	@echo 'warn_unused_ignores = True' >> ~/.config/mypy/config
+	@echo 'warn_no_return = True' >> ~/.config/mypy/config
+	@echo 'warn_unreachable = True' >> ~/.config/mypy/config
+	@echo 'strict_equality = True' >> ~/.config/mypy/config
 	@echo -e "${GREEN}✓${NC} Python environment configured"
 
 # Create example environments
