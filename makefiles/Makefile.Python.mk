@@ -128,7 +128,10 @@ install-system-deps:
 	@mkdir -p $$(dirname $(LOG_FILE))
 ifeq ($(PACKAGE_MANAGER),apt)
 	@echo "Installing essential build dependencies for Python..."
-	@$(SUDO) apt update && $(SUDO) apt install -y \
+	@# Try to update, but continue even if there are repo errors
+	@$(SUDO) apt update 2>&1 | tee -a $(LOG_FILE) || true
+	@echo "Installing packages (ignoring repository errors)..."
+	@$(SUDO) apt install -y \
 		build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
 		libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
 		xz-utils tk-dev libffi-dev liblzma-dev python3-openssl git \
@@ -137,7 +140,15 @@ ifeq ($(PACKAGE_MANAGER),apt)
 		libhdf5-dev libnetcdf-dev libopenblas-dev liblapack-dev gfortran \
 		cmake ninja-build ccache swig \
 		graphviz pandoc texlive-xetex texlive-fonts-recommended \
-		2>&1 | tee -a $(LOG_FILE)
+		2>&1 | tee -a $(LOG_FILE) || { \
+			echo -e "${YELLOW}⚠${NC} Some packages may have failed to install"; \
+			echo "Installing core dependencies only..."; \
+			$(SUDO) apt install -y \
+				build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
+				libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
+				xz-utils tk-dev libffi-dev liblzma-dev python3-openssl git \
+				2>&1 | tee -a $(LOG_FILE); \
+		}
 else ifeq ($(PACKAGE_MANAGER),dnf)
 	@$(SUDO) dnf install -y gcc gcc-c++ make git patch openssl-devel \
 		zlib-devel bzip2-devel readline-devel sqlite-devel tk-devel \
