@@ -28,7 +28,7 @@ else
 fi
 
 # Check if version is already installed
-if pyenv versions | grep -q "$PYTHON_VERSION"; then
+if pyenv versions --bare | grep -q "^${PYTHON_VERSION}$"; then
     echo -e "${GREEN}✓${NC} Python $PYTHON_VERSION already installed"
     exit 0
 fi

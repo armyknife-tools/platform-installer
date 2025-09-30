@@ -84,7 +84,7 @@ endif
         install-modern-tools install-linters install-testers install-ml-frameworks \
         install-data-science install-cybersecurity install-cloud-tools install-web-frameworks \
         install-devtools install-jupyter configure-python verify-python \
-        create-environments help-python
+        create-environments help-python list-pythons
 
 # IMPORTANT: System dependencies are REQUIRED for Python builds to work
 # They are now the first step in all installation profiles
@@ -206,21 +206,54 @@ install-python-versions:
 	@if [ -d "$$HOME/.pyenv" ]; then \
 		export PYENV_ROOT="$$HOME/.pyenv" && \
 		export PATH="$$PYENV_ROOT/bin:$$PATH" && \
-		for version in $(PYTHON_VERSIONS); do \
-			$(SHELL) scripts/install-python-pyenv.sh $$version 2>&1 | tee -a $(LOG_FILE) || \
-			echo -e "  ${YELLOW}⚠${NC} Failed to install Python $$version, continuing..."; \
-		done; \
 		eval "$$($$HOME/.pyenv/bin/pyenv init --path)" && \
-		if $$HOME/.pyenv/bin/pyenv versions | grep -q "3.12"; then \
+		echo -e "${CYAN}Checking installed Python versions...${NC}"; \
+		installed_versions="$$($$HOME/.pyenv/bin/pyenv versions --bare 2>/dev/null)"; \
+		for version in $(PYTHON_VERSIONS); do \
+			if echo "$$installed_versions" | grep -q "^$$version$$"; then \
+				echo -e "  ${GREEN}✓${NC} Python $$version already installed"; \
+			else \
+				echo -e "  ${YELLOW}→${NC} Installing Python $$version..."; \
+				$(SHELL) scripts/install-python-pyenv.sh $$version 2>&1 | tee -a $(LOG_FILE) || \
+				echo -e "  ${YELLOW}⚠${NC} Failed to install Python $$version, continuing..."; \
+			fi; \
+		done; \
+		echo -e "${CYAN}Setting global Python version...${NC}"; \
+		if $$HOME/.pyenv/bin/pyenv versions --bare | grep -q "^3.12"; then \
 			$$HOME/.pyenv/bin/pyenv global 3.12.7 2>/dev/null || $$HOME/.pyenv/bin/pyenv global system; \
+			echo -e "${GREEN}✓${NC} Set Python 3.12.7 as global"; \
+		elif $$HOME/.pyenv/bin/pyenv versions --bare | grep -q "^3.11"; then \
+			$$HOME/.pyenv/bin/pyenv global 3.11.10 2>/dev/null || $$HOME/.pyenv/bin/pyenv global system; \
+			echo -e "${GREEN}✓${NC} Set Python 3.11.10 as global"; \
 		else \
 			$$HOME/.pyenv/bin/pyenv global system; \
+			echo -e "${YELLOW}⚠${NC} Using system Python as global"; \
 		fi; \
 		$$HOME/.pyenv/bin/pyenv rehash; \
+		echo -e "${CYAN}Current Python version:${NC}"; \
+		$$HOME/.pyenv/bin/pyenv version 2>/dev/null || echo "system"; \
 	else \
 		echo -e "${YELLOW}⚠${NC} pyenv not installed, using system Python"; \
 	fi
 	@echo -e "${GREEN}✓${NC} Python setup complete"
+
+# List installed Python versions
+list-pythons:
+	@echo -e "${BLUE}ℹ${NC} Python versions status:"
+	@if [ -d "$$HOME/.pyenv" ]; then \
+		export PYENV_ROOT="$$HOME/.pyenv" && \
+		export PATH="$$PYENV_ROOT/bin:$$PATH" && \
+		eval "$$($$HOME/.pyenv/bin/pyenv init --path)" && \
+		echo -e "${CYAN}Installed versions:${NC}"; \
+		$$HOME/.pyenv/bin/pyenv versions 2>/dev/null || echo "  None"; \
+		echo ""; \
+		echo -e "${CYAN}Available to install (showing latest patch versions):${NC}"; \
+		$$HOME/.pyenv/bin/pyenv install --list 2>/dev/null | grep -E "^\s*3\.(10|11|12|13)\.[0-9]+$$" | tail -20 || echo "  Unable to list"; \
+	else \
+		echo -e "${YELLOW}⚠${NC} pyenv not installed"; \
+		echo -e "${CYAN}System Python:${NC}"; \
+		python3 --version 2>/dev/null || echo "  Not found"; \
+	fi
 
 # Install uv (Astral's ultra-fast Python package manager)
 install-uv:
