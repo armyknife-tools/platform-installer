@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 # Git functions for ArmyknifeLabs
 
-# Unset any existing functions to avoid conflicts
-unset -f gst gia glg gcm gnb gpush gpull grebase gstash gfind gcleanup galias 2>/dev/null
+# Guard to prevent double sourcing
+if [ -z "${ARMYKNIFE_GIT_LOADED}" ]; then
+export ARMYKNIFE_GIT_LOADED=1
+
+# Unalias conflicting aliases from oh-my-bash or other plugins
+unalias gst glg gcm 2>/dev/null || true
 
 # Git status with formatting
-gst() {
+function gst {
     git status --short --branch "${@}"
 }
 
@@ -15,12 +19,12 @@ gia() {
 }
 
 # Git log with graph
-glg() {
+function glg {
     git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit "${@}"
 }
 
 # Quick commit with message
-gcm() {
+function gcm {
     local message="$1"
     if [ -z "$message" ]; then
         ak_error "Commit message required"
@@ -85,3 +89,5 @@ galias() {
 
 # Export functions
 export -f gst gia glg gcm gnb gpush gpull grebase gstash gfind gcleanup galias
+
+fi # End of guard

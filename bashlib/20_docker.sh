@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 # Docker functions for ArmyknifeLabs
 
-# Unset any existing functions to avoid conflicts
-unset -f dps dex dlogs dstop dclean dcu dcd dcr dcl dbuild drun 2>/dev/null
+# Guard to prevent double sourcing
+if [ -z "${ARMYKNIFE_DOCKER_LOADED}" ]; then
+export ARMYKNIFE_DOCKER_LOADED=1
+
+# Unalias conflicting aliases from oh-my-bash or other plugins
+unalias dps 2>/dev/null || true
 
 # Docker ps with better formatting
-dps() {
+function dps {
     docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}" "${@}"
 }
 
@@ -58,3 +62,5 @@ drun() {
 
 # Export functions
 export -f dps dex dlogs dstop dclean dcu dcd dcr dcl dbuild drun
+
+fi # End of guard

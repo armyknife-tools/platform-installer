@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 # Kubernetes functions for ArmyknifeLabs
 
-# Unset any existing functions to avoid conflicts
-unset -f kpods kdesc klogs kexec kpf kall kctx kns kevents kscale 2>/dev/null
+# Guard to prevent double sourcing
+if [ -z "${ARMYKNIFE_K8S_LOADED}" ]; then
+export ARMYKNIFE_K8S_LOADED=1
+
+# Unalias conflicting aliases from oh-my-bash or other plugins
+unalias kpf 2>/dev/null || true
 
 # Kubectl aliases
 alias k='kubectl'
@@ -13,33 +17,33 @@ alias kgi='kubectl get ingress'
 alias kgn='kubectl get nodes'
 
 # Get pods with better formatting
-kpods() {
+function kpods {
     kubectl get pods "${@}" -o wide
 }
 
 # Describe resource
-kdesc() {
+function kdesc {
     local type="$1"
     local name="$2"
     kubectl describe "$type" "$name"
 }
 
 # Get logs
-klogs() {
+function klogs {
     local pod="$1"
     shift
     kubectl logs -f "$pod" "${@}"
 }
 
 # Execute into pod
-kexec() {
+function kexec {
     local pod="$1"
     shift
     kubectl exec -it "$pod" -- ${@:-/bin/bash}
 }
 
 # Port forward
-kpf() {
+function kpf {
     local pod="$1"
     local ports="$2"
     kubectl port-forward "$pod" "$ports"
@@ -84,3 +88,5 @@ kscale() {
 
 # Export functions
 export -f kpods kdesc klogs kexec kpf kall kctx kns kevents kscale
+
+fi # End of guard
