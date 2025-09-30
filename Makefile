@@ -73,7 +73,7 @@ endif
 .PHONY: install-base install-shell install-package-mgrs install-languages
 .PHONY: install-databases install-shell-tools install-git-tools install-security
 .PHONY: install-containers install-vms install-network install-cloud
-.PHONY: install-ai-tools install-bashlibs install-vscode install-cursor install-windsurf
+.PHONY: install-ai-tools install-bashlibs
 
 # Banner display with figlet
 banner:
@@ -183,81 +183,7 @@ full: banner init-logs backup-configs
 
 # Interactive menu for component selection
 menu: banner init-logs
-	@echo -e "${CYAN}=== ArmyknifeLabs Interactive Installation Menu ===${NC}"
-	@echo ""
-	@bash -c '\
-	select_components() { \
-		local components=(); \
-		local choice; \
-		while true; do \
-			clear; \
-			echo -e "${PURPLE}"; \
-			if command -v figlet &> /dev/null; then \
-				figlet -f small "Component Menu" 2>/dev/null || echo "Component Menu"; \
-			else \
-				echo "Component Menu"; \
-			fi; \
-			echo -e "${NC}"; \
-			echo -e "${GREEN}Selected: $${components[@]}${NC}"; \
-			echo ""; \
-			echo "${CYAN}Available Components:${NC}"; \
-			echo "  1) Base System       - OS updates, build tools"; \
-			echo "  2) Shell             - Oh-My-Bash/Zsh, Starship"; \
-			echo "  3) Package Managers  - Nix, Homebrew, etc."; \
-			echo "  4) Languages         - Python, Node, Go, Rust"; \
-			echo "  5) Databases         - PostgreSQL, MySQL, MongoDB"; \
-			echo "  6) Shell Tools       - fzf, bat, ripgrep, exa"; \
-			echo "  7) Git Tools         - Git, GitHub CLI, delta"; \
-			echo "  8) Security          - GPG, password managers"; \
-			echo "  9) Containers        - Docker, Kubernetes"; \
-			echo " 10) Virtualization    - VirtualBox, Vagrant"; \
-			echo " 11) Network           - Tailscale, monitoring"; \
-			echo " 12) Cloud             - AWS, Azure, GCP CLIs"; \
-			echo " 13) AI & Editors      - VS Code, Cursor, Windsurf"; \
-			echo " 14) Bash Libraries    - ArmyknifeLabs bashlib"; \
-			echo ""; \
-			echo "${YELLOW}Commands:${NC}"; \
-			echo "  A) Select All"; \
-			echo "  C) Clear Selection"; \
-			echo "  I) Install Selected"; \
-			echo "  Q) Quit"; \
-			echo ""; \
-			read -p "Enter choice (1-14, A/C/I/Q): " choice; \
-			case $$choice in \
-				1) components+=("base") ;; \
-				2) components+=("shell") ;; \
-				3) components+=("package-mgrs") ;; \
-				4) components+=("languages") ;; \
-				5) components+=("databases") ;; \
-				6) components+=("shell-tools") ;; \
-				7) components+=("git") ;; \
-				8) components+=("security") ;; \
-				9) components+=("containers") ;; \
-				10) components+=("virtualization") ;; \
-				11) components+=("network") ;; \
-				12) components+=("cloud") ;; \
-				13) components+=("ai-assistants") ;; \
-				14) components+=("bashlibs") ;; \
-				A|a) components=("base" "shell" "package-mgrs" "languages" "databases" "shell-tools" "git" "security" "containers" "virtualization" "network" "cloud" "ai-assistants" "bashlibs") ;; \
-				C|c) components=() ;; \
-				I|i) \
-					if [ $${#components[@]} -eq 0 ]; then \
-						echo "No components selected!"; \
-						sleep 2; \
-					else \
-						echo "Installing: $${components[@]}"; \
-						for comp in "$${components[@]}"; do \
-							make $$comp; \
-						done; \
-						echo "Installation complete!"; \
-						exit 0; \
-					fi ;; \
-				Q|q) exit 0 ;; \
-				*) echo "Invalid choice"; sleep 1 ;; \
-			esac; \
-		done; \
-	}; \
-	select_components'
+	@./scripts/interactive-menu.sh
 
 # Alias for backwards compatibility
 custom: menu
@@ -417,15 +343,6 @@ ai-assistants install-ai-tools: init-logs
 bashlibs install-bashlibs: init-logs
 	@$(MAKE) -f makefiles/Makefile.Bashlibs.mk all
 
-# Specific AI tool installations
-install-vscode: init-logs
-	@$(MAKE) -f makefiles/Makefile.AI-Assistants.mk install-vscode
-
-install-cursor: init-logs
-	@$(MAKE) -f makefiles/Makefile.AI-Assistants.mk install-cursor
-
-install-windsurf: init-logs
-	@$(MAKE) -f makefiles/Makefile.AI-Assistants.mk install-windsurf
 
 # Testing target (for development)
 test:

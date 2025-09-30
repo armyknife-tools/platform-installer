@@ -20,11 +20,11 @@ IS_MACOS := $(shell if [ "$$(uname -s)" = "Darwin" ]; then echo true; else echo 
 PACKAGE_MANAGER := $(if $(filter ubuntu debian linuxmint,$(OS_TYPE)),apt,$(if $(filter fedora rhel,$(OS_TYPE)),dnf,brew))
 SUDO := $(if $(IS_MACOS),,sudo)
 
-.PHONY: all install-git-tools configure-git verify-git
+.PHONY: all install-git configure-git verify-git
 
-all: install-git-tools configure-git verify-git
+all: install-git configure-git verify-git
 
-install-git-tools:
+install-git:
 	@echo -e "${BLUE}ℹ${NC} Installing Git ecosystem tools..."
 	@# GitHub CLI
 	@if ! command -v gh &> /dev/null; then \
