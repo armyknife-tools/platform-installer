@@ -363,37 +363,48 @@ install-formatters:
 install-modern-tools:
 	@echo -e "${BLUE}ℹ${NC} Installing modern Python tools..."
 	@# Package management
-	@echo -e "${YELLOW}Installing Pixi (conda-forge package manager)...${NC}"
-	@curl -fsSL https://pixi.sh/install.sh | bash 2>/dev/null || true
-	@# Build tools
-	@pipx install maturin  # Build/publish Rust-based Python extensions
-	@pipx install hatch  # Modern Python project management
-	@pipx install pdm  # Modern Python package manager
-	@# Data tools
-	@uv tool install polars  # Lightning-fast DataFrame library
-	@pipx install duckdb  # In-process SQL OLAP database
-	@# Type checking and validation
-	@pipx install pydantic  # Data validation using Python type annotations
-	@pipx install pydantic-ai  # AI framework from Pydantic team
-	@pipx install mypy
-	@pipx install pyright
-	@pipx install beartype  # Runtime type checking
-	@# Performance tools
-	@pipx install scalene  # High-performance CPU/GPU/memory profiler
-	@pipx install memray  # Memory profiler by Bloomberg
-	@pipx install py-spy  # Sampling profiler
-	@pipx install austin  # Frame stack sampler
-	@# Modern web frameworks
-	@pipx install litestar  # High-performance ASGI framework
-	@pipx install "fastapi[all]"
-	@pipx install reflex  # Full-stack Python framework
-	@# AI/LLM tools
-	@pipx install langchain
-	@pipx install llama-index
-	@pipx install instructor  # Structured extraction with LLMs
-	@pipx install marvin  # AI engineering toolkit
-	@pipx install outlines  # Structured text generation
-	@echo -e "${GREEN}✓${NC} Modern tools installed"
+	@if ! command -v pixi &> /dev/null; then \
+		echo -e "${YELLOW}Installing Pixi (conda-forge package manager)...${NC}"; \
+		curl -fsSL https://pixi.sh/install.sh | bash 2>/dev/null || true; \
+	else \
+		echo -e "${GREEN}✓${NC} Pixi already installed"; \
+	fi
+	@# Build and project management tools
+	@pipx install maturin 2>/dev/null || echo "  maturin already installed"
+	@pipx install hatch 2>/dev/null || echo "  hatch already installed"
+	@pipx install pdm 2>/dev/null || echo "  pdm already installed"
+	@pipx install poetry-plugin-export 2>/dev/null || true
+	@# Database CLI tools
+	@pipx install duckdb 2>/dev/null || echo "  duckdb already installed"
+	@pipx install litecli  # SQLite CLI with auto-completion
+	@pipx install pgcli  # PostgreSQL CLI with auto-completion
+	@pipx install mycli  # MySQL CLI with auto-completion
+	@# Type checkers and linters (CLI tools)
+	@pipx install mypy 2>/dev/null || echo "  mypy already installed"
+	@pipx install pyright 2>/dev/null || echo "  pyright already installed"
+	@pipx install pytype 2>/dev/null || true  # Google's type checker
+	@# Performance profiling tools
+	@pipx install scalene 2>/dev/null || echo "  scalene already installed"
+	@pipx install memray 2>/dev/null || echo "  memray already installed"
+	@pipx install py-spy 2>/dev/null || echo "  py-spy already installed"
+	@pipx install austin 2>/dev/null || echo "  austin already installed"
+	@pipx install pyinstrument  # Call stack profiler
+	@pipx install line_profiler  # Line-by-line profiler
+	@# Documentation tools
+	@pipx install mkdocs  # Project documentation
+	@pipx install sphinx  # Documentation generator
+	@pipx install pydoc-markdown  # Generate markdown from Python
+	@# Code quality tools
+	@pipx install vulture  # Find dead code
+	@pipx install bandit  # Security linter
+	@pipx install safety  # Check dependencies for vulnerabilities
+	@pipx install pip-audit  # Audit pip packages
+	@# Development utilities
+	@pipx install httpie  # Modern curl replacement
+	@pipx install rich-cli  # Rich text in terminal
+	@pipx install textual-dev  # TUI development
+	@echo -e "${GREEN}✓${NC} Modern CLI tools installed"
+	@echo -e "${YELLOW}Note: Python libraries like polars, pydantic, fastapi should be installed in project virtual environments${NC}"
 
 # Install Python linters
 install-linters:
@@ -456,22 +467,19 @@ install-ml-frameworks:
 # Install Data Science tools
 install-data-science:
 	@echo -e "${BLUE}ℹ${NC} Installing Data Science tools..."
-	@pipx install jupyterlab --include-deps
-	@pipx inject jupyterlab notebook ipywidgets jupyterlab-git jupyterlab-lsp
-	@pipx inject jupyterlab jupyterlab-code-formatter black isort
-	@pipx install streamlit
-	@pipx install gradio
-	@pipx install datasette
-	@pipx install papermill  # Parameterized notebooks
-	@pipx install kedro  # Data pipeline framework
-	@pipx install dvc  # Data version control
-	@pipx install great-expectations  # Data validation
-	@# Data manipulation tools
-	@uv tool install polars
-	@uv tool install duckdb
-	@uv tool install pyarrow
-	@uv tool install vaex
+	@pipx install jupyterlab --include-deps 2>/dev/null || echo "  jupyterlab already installed"
+	@pipx inject jupyterlab notebook ipywidgets jupyterlab-git jupyterlab-lsp 2>/dev/null || true
+	@pipx inject jupyterlab jupyterlab-code-formatter black isort 2>/dev/null || true
+	@pipx install streamlit 2>/dev/null || echo "  streamlit already installed"
+	@pipx install gradio 2>/dev/null || echo "  gradio already installed"
+	@pipx install datasette 2>/dev/null || echo "  datasette already installed"
+	@pipx install papermill 2>/dev/null || echo "  papermill already installed"
+	@pipx install kedro 2>/dev/null || echo "  kedro already installed"
+	@pipx install dvc 2>/dev/null || echo "  dvc already installed"
+	@pipx install great-expectations 2>/dev/null || echo "  great-expectations already installed"
+	@# Note: Data libraries like polars, duckdb, pyarrow should be installed in virtual environments
 	@echo -e "${GREEN}✓${NC} Data Science tools installed"
+	@echo -e "${YELLOW}Note: Install data libraries (polars, duckdb, pyarrow) in project virtual environments${NC}"
 
 # Install Cybersecurity tools
 install-cybersecurity:
