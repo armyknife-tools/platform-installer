@@ -21,6 +21,8 @@ show_help() {
     echo -e "${PURPLE}Providers:${NC}"
     echo "  lp, lastpass   - Use LastPass for storage"
     echo "  1p, 1password  - Use 1Password for storage (with env var references)"
+    echo "  age            - Use age encryption for local storage"
+    echo "  secure         - Hybrid: password manager + age backup"
     echo ""
     echo -e "${PURPLE}LastPass Commands:${NC}"
     echo "  lp add <name> <key> [folder]   - Store an API key in LastPass"
@@ -33,18 +35,33 @@ show_help() {
     echo "  1p list [vault]                 - List all stored API keys"
     echo "  1p env [file] [vault]           - Create .env file with 1Password refs"
     echo ""
+    echo -e "${PURPLE}Age Encryption Commands:${NC}"
+    echo "  age add <name> <key>            - Encrypt and store locally"
+    echo "  age get <name>                  - Decrypt and retrieve key"
+    echo "  age list                        - List all encrypted keys"
+    echo "  age backup [file]               - Create encrypted backup of all keys"
+    echo ""
+    echo -e "${PURPLE}Hybrid Security:${NC}"
+    echo "  secure add <name> <key> [provider] - Store in both password manager + age"
+    echo ""
     echo -e "${GREEN}Examples:${NC}"
     echo "  ak-apikey lp add 'OpenAI' 'sk-xxxxx'"
     echo "  ak-apikey 1p add 'OPENAI_API_KEY' 'sk-xxxxx' 'Development'"
-    echo "  ak-apikey 1p env .env.local 'Development'"
+    echo "  ak-apikey age add 'GITHUB_TOKEN' 'ghp_xxxxx'"
+    echo "  ak-apikey secure add 'OPENAI_API_KEY' 'sk-xxxxx' 1p"
+    echo "  ak-apikey age backup ~/keys-backup.tar.age"
     echo ""
-    echo -e "${YELLOW}1Password Pricing:${NC}"
-    echo "  Personal: \$2.99/mo (Individual), \$4.99/mo (Family)"
-    echo "  Business: \$7.99/user/mo with team features"
+    echo -e "${YELLOW}Security Layers:${NC}"
+    echo "  • 1Password: \$2.99/mo, cloud sync, env var references"
+    echo "  • LastPass: Cloud storage, team sharing"
+    echo "  • Age: Local encryption, air-gapped security, Git-safe"
+    echo "  • Hybrid: Maximum security with multiple backups"
     echo ""
-    echo -e "${YELLOW}Note:${NC} 1Password allows secure environment variable references:"
-    echo "  export OPENAI_API_KEY='op://vault/OPENAI_API_KEY/api_key'"
-    echo "  Then use: op run --env-file=.env -- your-command"
+    echo -e "${YELLOW}Age Encryption Benefits:${NC}"
+    echo "  • Works offline and in CI/CD pipelines"
+    echo "  • Can be stored in Git repositories (encrypted)"
+    echo "  • No external dependencies for decryption"
+    echo "  • Perfect for air-gapped environments"
 }
 
 # Main command handling
@@ -97,6 +114,46 @@ case "$1" in
                 ;;
         esac
         ;;
+    age)
+        shift
+        case "$1" in
+            add)
+                shift
+                age-encrypt-key "$@"
+                ;;
+            get)
+                shift
+                age-decrypt-key "$@"
+                ;;
+            list)
+                shift
+                list-age-keys "$@"
+                ;;
+            backup)
+                shift
+                backup-api-keys "$@"
+                ;;
+            *)
+                echo -e "${RED}Unknown age command: $1${NC}"
+                show_help
+                exit 1
+                ;;
+        esac
+        ;;
+    secure)
+        shift
+        case "$1" in
+            add)
+                shift
+                secure-api-key "$@"
+                ;;
+            *)
+                echo -e "${RED}Unknown secure command: $1${NC}"
+                show_help
+                exit 1
+                ;;
+        esac
+        ;;
     help|--help|-h)
         show_help
         ;;
@@ -105,7 +162,7 @@ case "$1" in
             show_help
         else
             echo -e "${RED}Unknown provider: $1${NC}"
-            echo "Use 'lp' for LastPass or '1p' for 1Password"
+            echo "Use 'lp' for LastPass, '1p' for 1Password, 'age' for encryption, or 'secure' for hybrid"
             echo ""
             show_help
             exit 1

@@ -296,7 +296,188 @@ setup-1p-env() {
     ak_info "Environment file created. Use with: op run --env-file=$env_file -- your-command"
 }
 
+# Age encryption for API keys - secure local storage
+age-encrypt-key() {
+    local name="$1"
+    local key="$2"
+    local recipient="${3:-$USER@$(hostname)}"
+    local output_dir="${ARMYKNIFE_DIR:-$HOME/.armyknife}/encrypted-keys"
+
+    if [ -z "$name" ] || [ -z "$key" ]; then
+        echo "Usage: age-encrypt-key <name> <key> [recipient]"
+        echo "Example: age-encrypt-key 'OPENAI_API_KEY' 'sk-xxxxx'"
+        return 1
+    fi
+
+    # Check if age is installed
+    if ! command -v age &> /dev/null; then
+        ak_error "age is not installed. Run 'make install-security' to install it."
+        return 1
+    fi
+
+    # Create directory for encrypted keys
+    mkdir -p "$output_dir"
+    local output_file="$output_dir/${name}.age"
+
+    # Create metadata file
+    local metadata="Name: $name
+Encrypted: $(date '+%Y-%m-%d %H:%M:%S')
+User: $(whoami)@$(hostname)
+---
+$key"
+
+    # Generate age key if it doesn't exist
+    local age_key_file="$HOME/.config/age/keys.txt"
+    if [ ! -f "$age_key_file" ]; then
+        ak_info "Generating age identity key..."
+        mkdir -p "$(dirname "$age_key_file")"
+        age-keygen -o "$age_key_file" 2>/dev/null
+        chmod 600 "$age_key_file"
+        ak_success "Age key generated at $age_key_file"
+    fi
+
+    # Encrypt the API key
+    echo "$metadata" | age -r "$(age-keygen -y < "$age_key_file")" -o "$output_file"
+
+    if [ $? -eq 0 ]; then
+        chmod 600 "$output_file"
+        ak_success "API key '$name' encrypted and stored at $output_file"
+        ak_info "Decrypt with: age-decrypt-key '$name'"
+
+        # Also create a backup encrypted with passphrase
+        local backup_file="$output_dir/${name}.backup.age"
+        echo "$metadata" | age -p -o "$backup_file" 2>/dev/null
+        ak_info "Backup created with passphrase at $backup_file"
+    else
+        ak_error "Failed to encrypt API key"
+        return 1
+    fi
+}
+
+# Decrypt age-encrypted API key
+age-decrypt-key() {
+    local name="$1"
+    local output_dir="${ARMYKNIFE_DIR:-$HOME/.armyknife}/encrypted-keys"
+    local input_file="$output_dir/${name}.age"
+
+    if [ -z "$name" ]; then
+        echo "Usage: age-decrypt-key <name>"
+        echo "Example: age-decrypt-key 'OPENAI_API_KEY'"
+        return 1
+    fi
+
+    if [ ! -f "$input_file" ]; then
+        ak_error "Encrypted key file not found: $input_file"
+        return 1
+    fi
+
+    # Check if age is installed
+    if ! command -v age &> /dev/null; then
+        ak_error "age is not installed. Run 'make install-security' to install it."
+        return 1
+    fi
+
+    local age_key_file="$HOME/.config/age/keys.txt"
+    if [ ! -f "$age_key_file" ]; then
+        ak_error "Age identity key not found. Cannot decrypt."
+        return 1
+    fi
+
+    # Decrypt and extract just the key value
+    age -d -i "$age_key_file" "$input_file" 2>/dev/null | tail -n1
+}
+
+# List all age-encrypted keys
+list-age-keys() {
+    local output_dir="${ARMYKNIFE_DIR:-$HOME/.armyknife}/encrypted-keys"
+
+    if [ ! -d "$output_dir" ]; then
+        ak_info "No encrypted keys found"
+        return 0
+    fi
+
+    ak_info "Age-encrypted API keys:"
+    for file in "$output_dir"/*.age; do
+        if [ -f "$file" ]; then
+            basename "$file" .age | grep -v ".backup"
+        fi
+    done | sort | uniq
+}
+
+# Create encrypted backup of all API keys
+backup-api-keys() {
+    local backup_file="${1:-$HOME/api-keys-backup-$(date +%Y%m%d-%H%M%S).tar.age}"
+    local temp_dir=$(mktemp -d)
+
+    ak_info "Creating encrypted backup of all API keys..."
+
+    # Export from LastPass if available
+    if command -v lpass &> /dev/null && lpass status &> /dev/null 2>&1; then
+        ak_info "Exporting from LastPass..."
+        lpass export --color=never > "$temp_dir/lastpass-export.csv" 2>/dev/null
+    fi
+
+    # Export from 1Password if available
+    if command -v op &> /dev/null && op account get &> /dev/null 2>&1; then
+        ak_info "Exporting from 1Password..."
+        op item list --format json > "$temp_dir/1password-export.json" 2>/dev/null
+    fi
+
+    # Include age-encrypted keys
+    if [ -d "${ARMYKNIFE_DIR:-$HOME/.armyknife}/encrypted-keys" ]; then
+        cp -r "${ARMYKNIFE_DIR:-$HOME/.armyknife}/encrypted-keys" "$temp_dir/"
+    fi
+
+    # Create tarball and encrypt with age
+    tar -czf - -C "$temp_dir" . | age -p -o "$backup_file"
+
+    # Cleanup
+    rm -rf "$temp_dir"
+
+    if [ -f "$backup_file" ]; then
+        ak_success "Backup created at $backup_file"
+        ak_info "This backup is encrypted with a passphrase"
+        ak_info "Restore with: restore-api-keys '$backup_file'"
+    else
+        ak_error "Failed to create backup"
+        return 1
+    fi
+}
+
+# Hybrid approach: Store in password manager AND create age-encrypted backup
+secure-api-key() {
+    local name="$1"
+    local key="$2"
+    local provider="${3:-1p}"  # Default to 1Password
+
+    if [ -z "$name" ] || [ -z "$key" ]; then
+        echo "Usage: secure-api-key <name> <key> [provider]"
+        echo "Example: secure-api-key 'OPENAI_API_KEY' 'sk-xxxxx' '1p'"
+        echo "Providers: 1p (1Password), lp (LastPass)"
+        return 1
+    fi
+
+    ak_info "Securing API key with multiple layers..."
+
+    # Store in password manager
+    if [ "$provider" = "1p" ]; then
+        add-1p-api-key "$name" "$key" "API Keys"
+    elif [ "$provider" = "lp" ]; then
+        add-api-key "$name" "$key" "API Keys"
+    fi
+
+    # Also create age-encrypted backup
+    age-encrypt-key "$name" "$key"
+
+    ak_success "API key secured with $provider and age encryption"
+    ak_info "Access methods:"
+    echo "  1. Password manager: get-${provider}-api-key '$name'"
+    echo "  2. Age decryption: age-decrypt-key '$name'"
+    echo "  3. Environment variable (1Password): op://API Keys/$name/api_key"
+}
+
 # Export functions
 export -f genpass genssh checkssl gpgenc gpgdec b64e b64d sha256sum md5sum
 export -f add-api-key get-api-key list-api-keys
 export -f add-1p-api-key get-1p-api-key list-1p-api-keys setup-1p-env
+export -f age-encrypt-key age-decrypt-key list-age-keys backup-api-keys secure-api-key
