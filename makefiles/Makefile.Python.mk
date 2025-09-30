@@ -194,15 +194,17 @@ install-poetry:
 	@echo -e "${BLUE}ℹ${NC} Installing Poetry..."
 	@if command -v poetry &> /dev/null; then \
 		echo -e "${GREEN}✓${NC} Poetry already installed, updating..."; \
-		poetry self update; \
+		poetry self update 2>/dev/null || true; \
 	else \
-		curl -sSL $(POETRY_INSTALLER) | python3 - 2>&1 | tee -a $(LOG_FILE); \
-		echo -e "${GREEN}✓${NC} Poetry installed"; \
+		curl -sSL $(POETRY_INSTALLER) | python3 - 2>&1 | tee -a $(LOG_FILE) || \
+		echo -e "${YELLOW}⚠${NC} Poetry installation failed, continuing..."; \
 	fi
-	@# Configure Poetry
-	@poetry config virtualenvs.in-project true
-	@poetry config virtualenvs.prefer-active-python true
-	@echo -e "${GREEN}✓${NC} Poetry configured"
+	@# Configure Poetry (only if successfully installed)
+	@if command -v poetry &> /dev/null; then \
+		poetry config virtualenvs.in-project true 2>/dev/null || true; \
+		poetry config virtualenvs.create true 2>/dev/null || true; \
+		echo -e "${GREEN}✓${NC} Poetry configured"; \
+	fi
 
 # Install Conda/Miniconda
 install-conda:
@@ -248,9 +250,17 @@ install-pipx:
 	@if command -v pipx &> /dev/null; then \
 		echo -e "${GREEN}✓${NC} pipx already installed"; \
 	else \
-		python3 -m pip install --user pipx 2>&1 | tee -a $(LOG_FILE); \
-		python3 -m pipx ensurepath; \
-		echo -e "${GREEN}✓${NC} pipx installed"; \
+		if command -v uv &> /dev/null; then \
+			uv tool install pipx 2>/dev/null || true; \
+		elif command -v pip3 &> /dev/null; then \
+			python3 -m pip install --user pipx 2>&1 | tee -a $(LOG_FILE) || true; \
+			python3 -m pipx ensurepath 2>/dev/null || true; \
+		fi; \
+		if command -v pipx &> /dev/null; then \
+			echo -e "${GREEN}✓${NC} pipx installed"; \
+		else \
+			echo -e "${YELLOW}⚠${NC} pipx installation failed, continuing..."; \
+		fi; \
 	fi
 
 # Install Python formatters
