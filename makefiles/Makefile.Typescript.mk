@@ -137,8 +137,14 @@ install-node-versions:
 	@fnm default $(DEFAULT_NODE) 2>/dev/null || true
 	@fnm use $(DEFAULT_NODE) 2>/dev/null || true
 	@# Install corepack for package manager management
-	@npm install -g corepack
-	@corepack enable
+	@echo "  Setting up corepack..."
+	@npm config set prefix ~/.npm-global 2>/dev/null || true
+	@export PATH="$$HOME/.npm-global/bin:$$PATH" && \
+		npm install -g corepack 2>/dev/null || { \
+			echo -e "${YELLOW}⚠${NC} Corepack installation skipped (requires permissions)"; \
+			echo -e "${YELLOW}   You can install it later with: sudo npm install -g corepack${NC}"; \
+		}
+	@command -v corepack &> /dev/null && corepack enable 2>/dev/null || true
 	@echo -e "${GREEN}✓${NC} Node.js versions installed"
 
 # Install pnpm

@@ -92,6 +92,11 @@ setup-repos:
 	@echo -e "${BLUE}Setting up AI assistant repositories...${NC}"
 	@mkdir -p $$(dirname $(LOG_FILE))
 ifeq ($(PACKAGE_MANAGER),apt)
+	@# Clean up conflicting VS Code sources
+	@if [ -f /etc/apt/sources.list.d/vscode.sources ] && [ -f /etc/apt/sources.list.d/vscode.list ]; then \
+		echo -e "${YELLOW}Removing conflicting VS Code source files...${NC}"; \
+		$(SUDO) rm -f /etc/apt/sources.list.d/vscode.sources 2>/dev/null || true; \
+	fi
 	@# Microsoft GPG key for VS Code - check both possible locations
 	@if [ ! -f /usr/share/keyrings/microsoft.gpg ] && [ ! -f /usr/share/keyrings/packages.microsoft.gpg ]; then \
 		echo -e "${YELLOW}Adding Microsoft GPG key...${NC}"; \
