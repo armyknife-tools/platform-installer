@@ -84,7 +84,7 @@ endif
         install-modern-tools install-linters install-testers install-ml-frameworks \
         install-data-science install-cybersecurity install-cloud-tools install-web-frameworks \
         install-devtools install-jupyter configure-python verify-python \
-        create-environments help-python list-pythons
+        create-environments help-python list-pythons clean-python-builds
 
 # IMPORTANT: System dependencies are REQUIRED for Python builds to work
 # They are now the first step in all installation profiles
@@ -259,9 +259,10 @@ list-pythons:
 install-uv:
 	@echo -e "${BLUE}ℹ${NC} Installing uv and uvx..."
 	@if command -v uv &> /dev/null; then \
-		echo -e "${GREEN}✓${NC} uv already installed, updating..."; \
-		uv self update 2>/dev/null || true; \
+		echo -e "${GREEN}✓${NC} uv already installed (version: $$(uv --version 2>/dev/null | cut -d' ' -f2))"; \
+		echo -e "${CYAN}Skipping auto-update (run 'uv self update' manually if needed)${NC}"; \
 	else \
+		echo -e "${YELLOW}Installing uv...${NC}"; \
 		curl -LsSf $(UV_INSTALLER) | sh 2>&1 | tee -a $(LOG_FILE); \
 		echo -e "${GREEN}✓${NC} uv installed"; \
 	fi
@@ -276,9 +277,10 @@ install-uv:
 install-poetry:
 	@echo -e "${BLUE}ℹ${NC} Installing Poetry..."
 	@if command -v poetry &> /dev/null; then \
-		echo -e "${GREEN}✓${NC} Poetry already installed, updating..."; \
-		poetry self update 2>/dev/null || true; \
+		echo -e "${GREEN}✓${NC} Poetry already installed (version: $$(poetry --version 2>/dev/null | cut -d' ' -f3))"; \
+		echo -e "${CYAN}Skipping auto-update (run 'poetry self update' manually if needed)${NC}"; \
 	else \
+		echo -e "${YELLOW}Installing Poetry...${NC}"; \
 		curl -sSL $(POETRY_INSTALLER) | python3 - 2>&1 | tee -a $(LOG_FILE) || \
 		echo -e "${YELLOW}⚠${NC} Poetry installation failed, continuing..."; \
 	fi
@@ -717,3 +719,29 @@ help-python:
 	@echo ""
 	@echo "Python Versions: $(PYTHON_VERSIONS)"
 	@echo "Default Version: $(DEFAULT_PYTHON)"
+	@echo ""
+	@echo "Utilities:"
+	@echo "  list-pythons          - Show installed Python versions"
+	@echo "  clean-python-builds   - Clean failed Python build artifacts"
+	@echo ""
+	@echo "Usage:"
+	@echo "  make -f makefiles/Makefile.Python.mk all"
+	@echo "  make -f makefiles/Makefile.Python.mk minimal"
+	@echo "  make -f makefiles/Makefile.Python.mk list-pythons"
+
+# Clean Python build artifacts
+clean-python-builds:
+	@echo -e "${BLUE}ℹ${NC} Cleaning Python build artifacts..."
+	@if ls /tmp/python-build* 1> /dev/null 2>&1; then \
+		rm -rf /tmp/python-build* && \
+		echo -e "${GREEN}✓${NC} Removed Python build directories from /tmp"; \
+	else \
+		echo -e "${YELLOW}ℹ${NC} No Python build directories found"; \
+	fi
+	@if [ -d ~/.pyenv/cache ]; then \
+		rm -rf ~/.pyenv/cache/* && \
+		echo -e "${GREEN}✓${NC} Cleared pyenv cache"; \
+	else \
+		echo -e "${YELLOW}ℹ${NC} No pyenv cache found"; \
+	fi
+	@echo -e "${GREEN}✓${NC} Cleanup complete"
