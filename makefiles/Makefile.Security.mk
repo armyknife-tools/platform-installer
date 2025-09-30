@@ -137,4 +137,5 @@ verify-security:
 			echo -e "  ${YELLOW}⚠${NC} $$tool not found"; \
 		fi; \
 	done
+	$(call show_completion_banner,SECURITY READY)
 	@echo -e "${GREEN}✓${NC} Security verification complete"

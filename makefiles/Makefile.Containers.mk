@@ -194,6 +194,7 @@ verify-containers:
 			echo -e "  ${YELLOW}⚠${NC} $$tool not found"; \
 		fi; \
 	done
+	$(call show_completion_banner,CONTAINERS READY)
 	@echo -e "${GREEN}✓${NC} Container verification complete"
 
 update-containers:

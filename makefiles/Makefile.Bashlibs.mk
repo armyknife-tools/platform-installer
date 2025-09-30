@@ -30,6 +30,7 @@ setup-bashlibs:
 	@echo -e "${BLUE}ℹ${NC} Setting up ArmyknifeLabs bash libraries..."
 	@chmod +x scripts/setup-bashlibs.sh
 	@scripts/setup-bashlibs.sh
+	$(call show_completion_banner,BASH LIBS READY)
 	@echo -e "${GREEN}✓${NC} Bash libraries setup complete!"
 	@echo ""
 	@echo "To activate the bash libraries, run:"

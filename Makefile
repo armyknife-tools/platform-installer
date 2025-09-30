@@ -53,6 +53,7 @@ endif
 -include makefiles/Makefile.Shell.mk
 -include makefiles/Makefile.PackageMgrs.mk
 -include makefiles/Makefile.Languages.mk
+-include makefiles/Makefile.Database.mk
 -include makefiles/Makefile.ShellTools.mk
 -include makefiles/Makefile.Git.mk
 -include makefiles/Makefile.Security.mk
@@ -126,6 +127,7 @@ standard: banner init-logs backup-configs
 	@$(MAKE) -f makefiles/Makefile.Shell.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.PackageMgrs.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.Languages.mk all 2>&1 | tee -a $(LOG_FILE)
+	@$(MAKE) -f makefiles/Makefile.Database.mk minimal 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.ShellTools.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.Git.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.Security.mk all 2>&1 | tee -a $(LOG_FILE)
@@ -147,6 +149,7 @@ full: banner init-logs backup-configs
 	@$(MAKE) -f makefiles/Makefile.Shell.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.PackageMgrs.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.Languages.mk all 2>&1 | tee -a $(LOG_FILE)
+	@$(MAKE) -f makefiles/Makefile.Database.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.ShellTools.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.Git.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.Security.mk all 2>&1 | tee -a $(LOG_FILE)
@@ -184,6 +187,7 @@ help: banner
 	@echo "  shell        - Oh-My-Bash/Zsh with modern prompt"
 	@echo "  package-mgrs - Enhanced package managers (Nix, etc.)"
 	@echo "  languages    - Python, Node, Go, Rust, Java version managers"
+	@echo "  databases    - PostgreSQL, MySQL, MongoDB, Redis, DuckDB, etc."
 	@echo "  shell-tools  - Terminal enhancements (fzf, bat, ripgrep, etc.)"
 	@echo "  git          - Git and GitHub ecosystem"
 	@echo "  security     - Encryption, GPG, password managers"
@@ -275,6 +279,9 @@ package-mgrs: init-logs
 
 languages: init-logs
 	@$(MAKE) -f makefiles/Makefile.Languages.mk all
+
+databases: init-logs
+	@$(MAKE) -f makefiles/Makefile.Database.mk all
 
 shell-tools: init-logs
 	@$(MAKE) -f makefiles/Makefile.ShellTools.mk all

@@ -410,6 +410,7 @@ verify-shell-tools:
 			echo -e "  ${YELLOW}⚠${NC} $$tool not found"; \
 		fi; \
 	done
+	$(call show_completion_banner,SHELL TOOLS READY)
 	@echo -e "${GREEN}✓${NC} Shell tools verification complete"
 
 # Update shell tools

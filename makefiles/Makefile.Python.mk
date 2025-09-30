@@ -20,6 +20,21 @@ PURPLE := \033[0;35m
 CYAN := \033[0;36m
 NC := \033[0m
 
+# Banner function - will use figlet if available, fallback to echo
+define show_completion_banner
+	@if command -v figlet &> /dev/null; then \
+		echo ""; \
+		echo -e "${GREEN}"; \
+		figlet -f small "$(1)"; \
+		echo -e "${NC}"; \
+	else \
+		echo ""; \
+		echo -e "${GREEN}========================================${NC}"; \
+		echo -e "${GREEN}   $(1)${NC}"; \
+		echo -e "${GREEN}========================================${NC}"; \
+	fi
+endef
+
 # Shell configuration - use bash for all commands
 SHELL := /bin/bash
 .SHELLFLAGS := -ec
@@ -417,7 +432,7 @@ install-linters:
 	@pipx install vulture  # Dead code finder
 	@pipx install pydocstyle  # Docstring linter
 	@pipx install pycodestyle
-	@pipx install mccabe  # Complexity checker
+	@# Note: mccabe is a library used by other tools, not a standalone CLI
 	@uv tool install semgrep
 	@echo -e "${GREEN}✓${NC} Linters installed"
 
@@ -689,6 +704,7 @@ verify-python:
 	@echo "=== Development Tools ==="
 	@command -v jupyter &> /dev/null && echo -e "  ${GREEN}✓${NC} jupyter installed"
 	@command -v ipython &> /dev/null && echo -e "  ${GREEN}✓${NC} ipython installed"
+	$(call show_completion_banner,PYTHON READY)
 	@echo -e "${GREEN}✓${NC} Python verification complete"
 
 # Help

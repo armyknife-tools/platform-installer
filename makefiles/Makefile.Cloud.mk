@@ -8,8 +8,12 @@ GREEN := \033[0;32m
 YELLOW := \033[1;33m
 NC := \033[0m
 
+# Shell configuration - use bash for all commands
+SHELL := /bin/bash
+.SHELLFLAGS := -ec
+
 OS_TYPE := $(shell . /etc/os-release 2>/dev/null && echo $$ID || echo macos)
-IS_MACOS := $(shell [[ "$$(uname -s)" == "Darwin" ]] && echo true || echo false)
+IS_MACOS := $(shell if [ "$$(uname -s)" = "Darwin" ]; then echo true; else echo false; fi)
 PACKAGE_MANAGER := $(if $(filter ubuntu debian linuxmint,$(OS_TYPE)),apt,$(if $(filter fedora rhel,$(OS_TYPE)),dnf,brew))
 SUDO := $(if $(IS_MACOS),,sudo)
 

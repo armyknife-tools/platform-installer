@@ -323,6 +323,7 @@ verify-package-managers:
 	else \
 		echo -e "  ${YELLOW}⚠${NC} mise not installed"; \
 	fi
+	$(call show_completion_banner,PACKAGE MGRS READY)
 	@echo -e "${GREEN}✓${NC} Package manager verification complete"
 
 # Update all package managers

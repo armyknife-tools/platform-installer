@@ -569,6 +569,7 @@ verify-rust:
 	@echo ""
 	@echo "=== Cargo Binaries ==="
 	@ls -la ~/.cargo/bin | head -15
+	$(call show_completion_banner,RUST READY)
 	@echo -e "${GREEN}✓${NC} Rust verification complete"
 
 # Help

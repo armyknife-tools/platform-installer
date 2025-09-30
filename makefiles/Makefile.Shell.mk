@@ -340,6 +340,7 @@ verify-shell:
 	else \
 		echo -e "  ${YELLOW}⚠${NC} ArmyknifeLabs not integrated"; \
 	fi
+	$(call show_completion_banner,SHELL READY)
 	@echo -e "${GREEN}✓${NC} Shell verification complete"
 
 # Update shell components

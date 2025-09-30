@@ -24,6 +24,21 @@ PURPLE := \033[0;35m
 CYAN := \033[0;36m
 NC := \033[0m
 
+# Banner function - will use figlet if available, fallback to echo
+define show_completion_banner
+	@if command -v figlet &> /dev/null; then \
+		echo ""; \
+		echo -e "${GREEN}"; \
+		figlet -f small "$(1)"; \
+		echo -e "${NC}"; \
+	else \
+		echo ""; \
+		echo -e "${GREEN}========================================${NC}"; \
+		echo -e "${GREEN}   $(1)${NC}"; \
+		echo -e "${GREEN}========================================${NC}"; \
+	fi
+endef
+
 # OS Detection variables
 OS_TYPE := unknown
 OS_VERSION := unknown
@@ -82,17 +97,17 @@ APT_BUILD_PACKAGES := build-essential cmake pkg-config autoconf automake libtool
     software-properties-common apt-transport-https unzip zip gzip tar bzip2 xz-utils \
     python3 python3-pip python3-venv python3-dev libffi-dev libbz2-dev libreadline-dev \
     libsqlite3-dev libncurses5-dev libncursesw5-dev libxml2-dev libxmlsec1-dev \
-    liblzma-dev tk-dev libgdbm-dev libc6-dev zlib1g-dev
+    liblzma-dev tk-dev libgdbm-dev libc6-dev zlib1g-dev figlet toilet lolcat
 
 DNF_BUILD_PACKAGES := @development-tools gcc gcc-c++ make cmake pkg-config \
     autoconf automake libtool git curl wget openssl openssl-devel ca-certificates \
     gnupg2 unzip zip gzip tar bzip2 xz python3 python3-pip python3-devel \
     libffi-devel bzip2-devel readline-devel sqlite-devel ncurses-devel \
-    libxml2-devel xmlsec1-devel xz-devel tk-devel gdbm-devel zlib-devel
+    libxml2-devel xmlsec1-devel xz-devel tk-devel gdbm-devel zlib-devel figlet
 
 BREW_BUILD_PACKAGES := cmake pkg-config autoconf automake libtool \
     git curl wget openssl gnupg unzip zip gzip tar bzip2 xz \
-    python@3 libffi readline sqlite ncurses libxml2 zlib
+    python@3 libffi readline sqlite ncurses libxml2 zlib figlet toilet lolcat
 
 # Phony targets
 .PHONY: all detect-os check-prerequisites update-system install-build-tools \
@@ -362,6 +377,7 @@ verify-base:
 	else \
 		echo -e "  ${RED}✗${NC} ArmyknifeLabs library directory missing"; \
 	fi
+	$(call show_completion_banner,BASE SYSTEM READY)
 	@echo -e "${GREEN}✓${NC} Base system verification complete"
 
 # Test base installation

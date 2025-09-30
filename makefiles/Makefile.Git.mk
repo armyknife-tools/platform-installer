@@ -108,4 +108,5 @@ verify-git:
 			echo -e "  ${YELLOW}⚠${NC} $$tool not found"; \
 		fi; \
 	done
+	$(call show_completion_banner,GIT READY)
 	@echo -e "${GREEN}✓${NC} Git verification complete"

@@ -57,7 +57,8 @@ endif
 # URLs for downloads
 VSCODE_URL := https://code.visualstudio.com/sha/download?build=stable&os=linux-x64
 CURSOR_URL := https://downloader.cursor.sh/linux/appImage/x64
-WINDSURF_URL := https://windsurf.codeium.com/api/download/linux
+WINDSURF_URL := https://windsurf-stable.codeiumdata.com/linux/windsurf.tar.gz
+WINDSURF_GPG := https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/windsurf.gpg
 CONTINUE_URL := https://continue.dev/install.sh
 ZEDITOR_URL := https://zed.dev/install.sh
 
@@ -66,8 +67,10 @@ VSCODE_GPG_KEY := https://packages.microsoft.com/keys/microsoft.asc
 CURSOR_GPG_KEY := https://downloads.cursor.com/aptrepo/public.gpg.key
 
 # Repository URLs
+# Use microsoft.gpg if it exists, otherwise use packages.microsoft.gpg
 ifeq ($(PACKAGE_MANAGER),apt)
-    VSCODE_REPO := "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main"
+    MICROSOFT_GPG := $(shell if [ -f /usr/share/keyrings/microsoft.gpg ]; then echo "/usr/share/keyrings/microsoft.gpg"; else echo "/usr/share/keyrings/packages.microsoft.gpg"; fi)
+    VSCODE_REPO := "deb [arch=amd64,arm64,armhf signed-by=$(MICROSOFT_GPG)] https://packages.microsoft.com/repos/code stable main"
     CURSOR_REPO := "deb [arch=amd64 signed-by=/usr/share/keyrings/cursor-archive-keyring.gpg] https://downloads.cursor.com/aptrepo stable main"
 endif
 
@@ -89,8 +92,8 @@ setup-repos:
 	@echo -e "${BLUE}Setting up AI assistant repositories...${NC}"
 	@mkdir -p $$(dirname $(LOG_FILE))
 ifeq ($(PACKAGE_MANAGER),apt)
-	@# Microsoft GPG key for VS Code
-	@if [ ! -f /usr/share/keyrings/packages.microsoft.gpg ]; then \
+	@# Microsoft GPG key for VS Code - check both possible locations
+	@if [ ! -f /usr/share/keyrings/microsoft.gpg ] && [ ! -f /usr/share/keyrings/packages.microsoft.gpg ]; then \
 		echo -e "${YELLOW}Adding Microsoft GPG key...${NC}"; \
 		curl -fsSL $(VSCODE_GPG_KEY) | $(SUDO) gpg --dearmor -o /usr/share/keyrings/packages.microsoft.gpg; \
 	fi
@@ -162,15 +165,30 @@ endif
 # Install cursor-cli (command line interface for Cursor)
 install-cursor-cli:
 	@echo -e "${BLUE}Installing cursor-cli...${NC}"
-	@if command -v cursor-cli &> /dev/null; then \
+	@if command -v cursor-cli &> /dev/null || command -v cursor &> /dev/null; then \
 		echo -e "${GREEN}✓${NC} cursor-cli already installed"; \
 	else \
 		echo -e "${YELLOW}Installing cursor-cli...${NC}"; \
 		if command -v npm &> /dev/null; then \
-			npm install -g cursor-cli 2>&1 | tee -a $(LOG_FILE) || { \
-				echo -e "${YELLOW}Trying with sudo...${NC}"; \
-				$(SUDO) npm install -g cursor-cli 2>&1 | tee -a $(LOG_FILE); \
-			}; \
+			NPM_PREFIX=$$(npm config get prefix 2>/dev/null || echo "/usr/local"); \
+			if [ -w "$$NPM_PREFIX/lib/node_modules" ]; then \
+				npm install -g cursor-cli 2>&1 | tee -a $(LOG_FILE) || true; \
+			else \
+				echo -e "${YELLOW}Global npm directory not writable, trying with sudo...${NC}"; \
+				$(SUDO) npm install -g cursor-cli 2>&1 | tee -a $(LOG_FILE) || { \
+					echo -e "${YELLOW}npm install failed, trying alternative methods...${NC}"; \
+					mkdir -p $(HOME)/.local/bin; \
+					npm config set prefix $(HOME)/.local 2>/dev/null; \
+					npm install -g cursor-cli 2>&1 | tee -a $(LOG_FILE) || { \
+						echo -e "${YELLOW}Installing from GitHub release...${NC}"; \
+						curl -L https://github.com/getcursor/cursor-cli/releases/latest/download/cursor-cli-linux-x64 \
+							-o $(HOME)/.local/bin/cursor-cli 2>/dev/null || \
+						curl -L https://raw.githubusercontent.com/getcursor/cursor/main/scripts/cursor-cli \
+							-o $(HOME)/.local/bin/cursor-cli; \
+						chmod +x $(HOME)/.local/bin/cursor-cli; \
+					}; \
+				}; \
+			fi; \
 		elif command -v cargo &> /dev/null; then \
 			echo -e "${YELLOW}Installing cursor-cli via cargo...${NC}"; \
 			cargo install cursor-cli 2>&1 | tee -a $(LOG_FILE); \
@@ -178,6 +196,8 @@ install-cursor-cli:
 			echo -e "${YELLOW}Installing cursor-cli from GitHub...${NC}"; \
 			mkdir -p $(HOME)/.local/bin; \
 			curl -L https://github.com/getcursor/cursor-cli/releases/latest/download/cursor-cli-linux-x64 \
+				-o $(HOME)/.local/bin/cursor-cli 2>/dev/null || \
+			curl -L https://raw.githubusercontent.com/getcursor/cursor/main/scripts/cursor-cli \
 				-o $(HOME)/.local/bin/cursor-cli; \
 			chmod +x $(HOME)/.local/bin/cursor-cli; \
 		fi; \
@@ -198,7 +218,7 @@ install-windsurf:
 		elif [ "$(IS_MACOS)" = "true" ]; then \
 			brew install --cask windsurf || { \
 				echo -e "${YELLOW}Installing via direct download...${NC}"; \
-				curl -L https://windsurf.codeium.com/api/download/macos -o /tmp/windsurf.dmg; \
+				curl -L https://windsurf-stable.codeiumdata.com/macos/windsurf.dmg -o /tmp/windsurf.dmg; \
 				hdiutil attach /tmp/windsurf.dmg; \
 				cp -R "/Volumes/Windsurf/Windsurf.app" /Applications/; \
 				hdiutil detach "/Volumes/Windsurf"; \
@@ -339,6 +359,7 @@ verify-ai:
 		echo -e "  ${GREEN}✓${NC} GitHub Copilot CLI" || echo -e "  ${YELLOW}⚠${NC} GitHub Copilot CLI (auth required)"
 	@command -v codeium &> /dev/null && echo -e "  ${GREEN}✓${NC} Codeium CLI" || echo -e "  ${RED}✗${NC} Codeium CLI"
 	@echo ""
+	$(call show_completion_banner,AI TOOLS READY)
 	@echo -e "${GREEN}✓${NC} AI assistants verification complete"
 
 # Help target

@@ -158,11 +158,16 @@ ifeq ($(PACKAGE_MANAGER),apt)
 else ifeq ($(IS_MACOS),true)
 	@brew install ansible ansible-lint 2>/dev/null || true
 endif
-	@# Install Salt (SaltStack)
-	@curl -L https://bootstrap.saltproject.io -o /tmp/install_salt.sh 2>/dev/null || true
-	@if [ -f /tmp/install_salt.sh ]; then \
-		$(SUDO) sh /tmp/install_salt.sh -P 2>&1 | tee -a $(LOG_FILE) || true; \
-		rm /tmp/install_salt.sh; \
+	@# Install Salt (SaltStack) - optional, may fail on some systems
+	@echo -e "${YELLOW}Installing Salt (optional)...${NC}"
+	@if ! command -v salt-minion &> /dev/null; then \
+		curl -L https://bootstrap.saltproject.io -o /tmp/install_salt.sh 2>/dev/null && \
+		chmod +x /tmp/install_salt.sh && \
+		$(SUDO) bash /tmp/install_salt.sh -P 2>&1 | tee -a $(LOG_FILE) || \
+		echo -e "${YELLOW}⚠ Salt installation failed (optional component)${NC}"; \
+		rm -f /tmp/install_salt.sh; \
+	else \
+		echo -e "${GREEN}✓${NC} Salt already installed"; \
 	fi
 	@echo -e "${GREEN}✓${NC} Fleet management tools installed"
 
@@ -205,6 +210,7 @@ verify-network:
 	@command -v ansible &> /dev/null && echo -e "  ${GREEN}✓${NC} Ansible" || echo -e "  ${RED}✗${NC} Ansible"
 	@command -v salt &> /dev/null && echo -e "  ${GREEN}✓${NC} Salt" || echo -e "  ${YELLOW}⚠${NC} Salt (optional)"
 	@echo ""
+	$(call show_completion_banner,NETWORK READY)
 	@echo -e "${GREEN}✓${NC} Network verification complete"
 
 # Help target

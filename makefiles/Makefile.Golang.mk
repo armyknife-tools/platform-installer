@@ -540,6 +540,7 @@ verify-golang:
 	@echo ""
 	@echo "=== Go Modules ==="
 	@ls -la ~/go/bin | head -10
+	$(call show_completion_banner,GOLANG READY)
 	@echo -e "${GREEN}✓${NC} Go verification complete"
 
 # Help
