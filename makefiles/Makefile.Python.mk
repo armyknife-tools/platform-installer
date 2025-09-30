@@ -123,9 +123,8 @@ endif
 install-pyenv:
 	@echo -e "${BLUE}ℹ${NC} Installing pyenv..."
 	@if [ -d "$$HOME/.pyenv" ]; then \
-		echo -e "${GREEN}✓${NC} pyenv already installed, updating..."; \
-		cd ~/.pyenv && git pull && \
-		cd ~/.pyenv/plugins/pyenv-virtualenv && git pull; \
+		echo -e "${GREEN}✓${NC} pyenv already installed"; \
+		# Skip update - can be done manually if needed \
 	else \
 		curl -L $(PYENV_INSTALLER) | bash 2>&1 | tee -a $(LOG_FILE); \
 		echo -e "${GREEN}✓${NC} pyenv installed"; \

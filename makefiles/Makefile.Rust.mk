@@ -85,8 +85,8 @@ endif
 install-rustup:
 	@echo -e "${BLUE}ℹ${NC} Installing rustup..."
 	@if command -v rustup &> /dev/null; then \
-		echo -e "${GREEN}✓${NC} rustup already installed, updating..."; \
-		rustup self update; \
+		echo -e "${GREEN}✓${NC} rustup already installed"; \
+		# Skip update - can be done manually if needed \
 	else \
 		curl --proto '=https' --tlsv1.2 -sSf $(RUSTUP_INSTALLER) | sh -s -- -y 2>&1 | tee -a $(LOG_FILE); \
 		echo -e "${GREEN}✓${NC} rustup installed"; \
