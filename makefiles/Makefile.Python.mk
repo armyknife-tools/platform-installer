@@ -127,6 +127,14 @@ install-system-deps:
 	@echo -e "${YELLOW}⚠${NC} This requires sudo access to install system packages"
 	@mkdir -p $$(dirname $(LOG_FILE))
 ifeq ($(PACKAGE_MANAGER),apt)
+	@# Fix Cursor GPG key issue if present
+	@if [ -f /etc/apt/sources.list.d/cursor.list ] && ! [ -f /usr/share/keyrings/cursor-archive-keyring.gpg ]; then \
+		echo -e "${YELLOW}Fixing Cursor repository GPG key...${NC}"; \
+		curl -fsSL https://downloads.cursor.com/aptrepo/public.gpg.key | \
+			$(SUDO) gpg --dearmor -o /usr/share/keyrings/cursor-archive-keyring.gpg 2>/dev/null || true; \
+		echo "deb [arch=amd64 signed-by=/usr/share/keyrings/cursor-archive-keyring.gpg] https://downloads.cursor.com/aptrepo stable main" | \
+			$(SUDO) tee /etc/apt/sources.list.d/cursor.list > /dev/null; \
+	fi
 	@echo "Installing essential build dependencies for Python..."
 	@# Try to update, but continue even if there are repo errors
 	@$(SUDO) apt update 2>&1 | tee -a $(LOG_FILE) || true

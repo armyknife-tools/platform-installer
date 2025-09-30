@@ -60,6 +60,7 @@ endif
 -include makefiles/Makefile.Virtualization.mk
 -include makefiles/Makefile.Network.mk
 -include makefiles/Makefile.Cloud.mk
+-include makefiles/Makefile.AI-Assistants.mk
 -include makefiles/Makefile.Bashlibs.mk
 -include makefiles/Makefile.Extras.mk
 
@@ -130,6 +131,7 @@ standard: banner init-logs backup-configs
 	@$(MAKE) -f makefiles/Makefile.Security.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.Containers.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.Network.mk minimal 2>&1 | tee -a $(LOG_FILE)
+	@$(MAKE) -f makefiles/Makefile.AI-Assistants.mk minimal 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.Bashlibs.mk all 2>&1 | tee -a $(LOG_FILE)
 	@echo ""
 	@echo -e "${GREEN}✓${NC} ArmyknifeLabs Platform - Standard installation complete!"
@@ -152,6 +154,7 @@ full: banner init-logs backup-configs
 	@$(MAKE) -f makefiles/Makefile.Virtualization.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.Network.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.Cloud.mk all 2>&1 | tee -a $(LOG_FILE)
+	@$(MAKE) -f makefiles/Makefile.AI-Assistants.mk all 2>&1 | tee -a $(LOG_FILE)
 	@$(MAKE) -f makefiles/Makefile.Bashlibs.mk all 2>&1 | tee -a $(LOG_FILE)
 	@echo ""
 	@echo -e "${GREEN}✓${NC} ArmyknifeLabs Platform - Full installation complete!"
@@ -188,6 +191,7 @@ help: banner
 	@echo "  virtualization - VirtualBox, Vagrant, Packer"
 	@echo "  network      - Tailscale VPN, fleet management"
 	@echo "  cloud        - AWS, Azure, GCP, Linode CLIs"
+	@echo "  ai-assistants - VS Code, Cursor, Windsurf, AI coding tools"
 	@echo "  bashlibs     - Comprehensive bash function libraries"
 	@echo ""
 	@echo -e "${CYAN}Utility Commands:${NC}"
