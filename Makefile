@@ -66,20 +66,35 @@ endif
 -include makefiles/Makefile.Extras.mk
 
 # Phony targets
-.PHONY: all banner help minimal standard full custom verify doctor update uninstall clean
+.PHONY: all banner help minimal standard full custom menu verify doctor update uninstall clean
 .PHONY: init-dirs init-logs backup-configs
+.PHONY: base shell package-mgrs languages databases shell-tools git security
+.PHONY: containers virtualization network cloud ai-assistants bashlibs
+.PHONY: install-base install-shell install-package-mgrs install-languages
+.PHONY: install-databases install-shell-tools install-git-tools install-security
+.PHONY: install-containers install-vms install-network install-cloud
+.PHONY: install-ai-tools install-bashlibs install-vscode install-cursor install-windsurf
 
-# Banner display
+# Banner display with figlet
 banner:
 	@echo ""
-	@echo -e "${PURPLE}╔═══════════════════════════════════════════════════════════╗${NC}"
-	@echo -e "${PURPLE}║                                                           ║${NC}"
-	@echo -e "${PURPLE}║         ArmyknifeLabs Platform Installer v$(ARMYKNIFE_VERSION)            ║${NC}"
-	@echo -e "${PURPLE}║                                                           ║${NC}"
-	@echo -e "${PURPLE}║     The Ultimate Software Development Workstation         ║${NC}"
-	@echo -e "${PURPLE}║                                                           ║${NC}"
-	@echo -e "${PURPLE}╚═══════════════════════════════════════════════════════════╝${NC}"
+	@if command -v figlet &> /dev/null; then \
+		echo -e "${PURPLE}"; \
+		figlet -f slant "ArmyknifeLabs" 2>/dev/null || figlet "ArmyknifeLabs"; \
+		echo -e "${NC}"; \
+		echo -e "${CYAN}         Platform Installer v$(ARMYKNIFE_VERSION)${NC}"; \
+		echo -e "${BLUE}    The Ultimate Software Development Workstation${NC}"; \
+	else \
+		echo -e "${PURPLE}╔═══════════════════════════════════════════════════════════╗${NC}"; \
+		echo -e "${PURPLE}║                                                           ║${NC}"; \
+		echo -e "${PURPLE}║         ArmyknifeLabs Platform Installer v$(ARMYKNIFE_VERSION)            ║${NC}"; \
+		echo -e "${PURPLE}║                                                           ║${NC}"; \
+		echo -e "${PURPLE}║     The Ultimate Software Development Workstation         ║${NC}"; \
+		echo -e "${PURPLE}║                                                           ║${NC}"; \
+		echo -e "${PURPLE}╚═══════════════════════════════════════════════════════════╝${NC}"; \
+	fi
 	@echo ""
+	@echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
 # Initialize directories
 init-dirs:
@@ -166,55 +181,147 @@ full: banner init-logs backup-configs
 	@echo ""
 	@$(MAKE) post-install-message
 
-# Custom: User selects components interactively
-custom: banner init-logs
-	@echo -e "${CYAN}=== ArmyknifeLabs Custom Installation ===${NC}"
-	@echo "Select components to install:"
-	@./scripts/interactive-install.sh
+# Interactive menu for component selection
+menu: banner init-logs
+	@echo -e "${CYAN}=== ArmyknifeLabs Interactive Installation Menu ===${NC}"
+	@echo ""
+	@bash -c '\
+	select_components() { \
+		local components=(); \
+		local choice; \
+		while true; do \
+			clear; \
+			echo -e "${PURPLE}"; \
+			if command -v figlet &> /dev/null; then \
+				figlet -f small "Component Menu" 2>/dev/null || echo "Component Menu"; \
+			else \
+				echo "Component Menu"; \
+			fi; \
+			echo -e "${NC}"; \
+			echo -e "${GREEN}Selected: $${components[@]}${NC}"; \
+			echo ""; \
+			echo "${CYAN}Available Components:${NC}"; \
+			echo "  1) Base System       - OS updates, build tools"; \
+			echo "  2) Shell             - Oh-My-Bash/Zsh, Starship"; \
+			echo "  3) Package Managers  - Nix, Homebrew, etc."; \
+			echo "  4) Languages         - Python, Node, Go, Rust"; \
+			echo "  5) Databases         - PostgreSQL, MySQL, MongoDB"; \
+			echo "  6) Shell Tools       - fzf, bat, ripgrep, exa"; \
+			echo "  7) Git Tools         - Git, GitHub CLI, delta"; \
+			echo "  8) Security          - GPG, password managers"; \
+			echo "  9) Containers        - Docker, Kubernetes"; \
+			echo " 10) Virtualization    - VirtualBox, Vagrant"; \
+			echo " 11) Network           - Tailscale, monitoring"; \
+			echo " 12) Cloud             - AWS, Azure, GCP CLIs"; \
+			echo " 13) AI & Editors      - VS Code, Cursor, Windsurf"; \
+			echo " 14) Bash Libraries    - ArmyknifeLabs bashlib"; \
+			echo ""; \
+			echo "${YELLOW}Commands:${NC}"; \
+			echo "  A) Select All"; \
+			echo "  C) Clear Selection"; \
+			echo "  I) Install Selected"; \
+			echo "  Q) Quit"; \
+			echo ""; \
+			read -p "Enter choice (1-14, A/C/I/Q): " choice; \
+			case $$choice in \
+				1) components+=("base") ;; \
+				2) components+=("shell") ;; \
+				3) components+=("package-mgrs") ;; \
+				4) components+=("languages") ;; \
+				5) components+=("databases") ;; \
+				6) components+=("shell-tools") ;; \
+				7) components+=("git") ;; \
+				8) components+=("security") ;; \
+				9) components+=("containers") ;; \
+				10) components+=("virtualization") ;; \
+				11) components+=("network") ;; \
+				12) components+=("cloud") ;; \
+				13) components+=("ai-assistants") ;; \
+				14) components+=("bashlibs") ;; \
+				A|a) components=("base" "shell" "package-mgrs" "languages" "databases" "shell-tools" "git" "security" "containers" "virtualization" "network" "cloud" "ai-assistants" "bashlibs") ;; \
+				C|c) components=() ;; \
+				I|i) \
+					if [ $${#components[@]} -eq 0 ]; then \
+						echo "No components selected!"; \
+						sleep 2; \
+					else \
+						echo "Installing: $${components[@]}"; \
+						for comp in "$${components[@]}"; do \
+							make $$comp; \
+						done; \
+						echo "Installation complete!"; \
+						exit 0; \
+					fi ;; \
+				Q|q) exit 0 ;; \
+				*) echo "Invalid choice"; sleep 1 ;; \
+			esac; \
+		done; \
+	}; \
+	select_components'
 
-# Help target
+# Alias for backwards compatibility
+custom: menu
+
+# Help target - Enhanced menu with categories
 help: banner
 	@echo "Usage: make [target]"
 	@echo ""
-	@echo -e "${CYAN}Installation Profiles:${NC}"
-	@echo "  minimal      - Base system + shell only (~15 min)"
-	@echo "  standard     - Common developer tools (~45 min, ${GREEN}recommended${NC})"
-	@echo "  full         - Everything including VMs and cloud tools (~90 min)"
-	@echo "  custom       - Interactive component selection"
+	@echo -e "${GREEN}┌─────────────────────────────────────────────────────────┐${NC}"
+	@echo -e "${GREEN}│              📦 INSTALLATION PROFILES                   │${NC}"
+	@echo -e "${GREEN}└─────────────────────────────────────────────────────────┘${NC}"
+	@echo -e "  ${CYAN}minimal${NC}      ${BLUE}➜${NC} Base system + shell only (~15 min)"
+	@echo -e "  ${CYAN}standard${NC}     ${BLUE}➜${NC} Common developer tools (~45 min) ${GREEN}[RECOMMENDED]${NC}"
+	@echo -e "  ${CYAN}full${NC}         ${BLUE}➜${NC} Everything including VMs and cloud (~90 min)"
+	@echo -e "  ${CYAN}menu${NC}         ${BLUE}➜${NC} ${YELLOW}Interactive menu for component selection${NC}"
 	@echo ""
-	@echo -e "${CYAN}Individual Components:${NC}"
-	@echo "  base         - OS updates, build tools, compiler toolchain"
-	@echo "  shell        - Oh-My-Bash/Zsh with modern prompt"
-	@echo "  package-mgrs - Enhanced package managers (Nix, etc.)"
-	@echo "  languages    - Python, Node, Go, Rust, Java version managers"
-	@echo "  databases    - PostgreSQL, MySQL, MongoDB, Redis, DuckDB, etc."
-	@echo "  shell-tools  - Terminal enhancements (fzf, bat, ripgrep, etc.)"
-	@echo "  git          - Git and GitHub ecosystem"
-	@echo "  security     - Encryption, GPG, password managers"
-	@echo "  containers   - Docker, Podman, Kubernetes"
-	@echo "  virtualization - VirtualBox, Vagrant, Packer"
-	@echo "  network      - Tailscale VPN, fleet management"
-	@echo "  cloud        - AWS, Azure, GCP, Linode CLIs"
-	@echo "  ai-assistants - VS Code, Cursor, Windsurf, AI coding tools"
-	@echo "  bashlibs     - Comprehensive bash function libraries"
+	@echo -e "${GREEN}┌─────────────────────────────────────────────────────────┐${NC}"
+	@echo -e "${GREEN}│              🔧 BASE COMPONENTS                         │${NC}"
+	@echo -e "${GREEN}└─────────────────────────────────────────────────────────┘${NC}"
+	@echo -e "  ${CYAN}install-base${NC}         ${BLUE}➜${NC} OS updates, build tools, compilers"
+	@echo -e "  ${CYAN}install-shell${NC}        ${BLUE}➜${NC} Oh-My-Bash/Zsh, Starship prompt"
+	@echo -e "  ${CYAN}install-package-mgrs${NC} ${BLUE}➜${NC} Nix, Homebrew, enhanced managers"
 	@echo ""
-	@echo -e "${CYAN}Utility Commands:${NC}"
-	@echo "  verify       - Verify all installed components"
-	@echo "  update       - Update all installed components"
-	@echo "  clean        - Remove installation artifacts"
-	@echo "  uninstall    - Remove all ArmyknifeLabs components"
-	@echo "  doctor       - Diagnose installation issues"
+	@echo -e "${GREEN}┌─────────────────────────────────────────────────────────┐${NC}"
+	@echo -e "${GREEN}│              💻 DEVELOPMENT TOOLS                       │${NC}"
+	@echo -e "${GREEN}└─────────────────────────────────────────────────────────┘${NC}"
+	@echo -e "  ${CYAN}install-languages${NC}    ${BLUE}➜${NC} Python, Node.js, Go, Rust, Java"
+	@echo -e "  ${CYAN}install-databases${NC}    ${BLUE}➜${NC} PostgreSQL, MySQL, MongoDB, Redis"
+	@echo -e "  ${CYAN}install-shell-tools${NC}  ${BLUE}➜${NC} fzf, bat, ripgrep, exa, zoxide"
+	@echo -e "  ${CYAN}install-git-tools${NC}    ${BLUE}➜${NC} Git, GitHub CLI, git-flow, delta"
 	@echo ""
-	@echo -e "${CYAN}Documentation:${NC}"
-	@echo "  docs/README.md           - Full documentation"
-	@echo "  docs/USAGE.md            - Command reference"
-	@echo "  docs/TROUBLESHOOTING.md  - Common issues and solutions"
+	@echo -e "${GREEN}┌─────────────────────────────────────────────────────────┐${NC}"
+	@echo -e "${GREEN}│              🐳 INFRASTRUCTURE                          │${NC}"
+	@echo -e "${GREEN}└─────────────────────────────────────────────────────────┘${NC}"
+	@echo -e "  ${CYAN}install-containers${NC}   ${BLUE}➜${NC} Docker, Podman, Kubernetes tools"
+	@echo -e "  ${CYAN}install-vms${NC}          ${BLUE}➜${NC} VirtualBox, Vagrant, Packer"
+	@echo -e "  ${CYAN}install-network${NC}      ${BLUE}➜${NC} Tailscale, Saltstack, monitoring"
+	@echo -e "  ${CYAN}install-cloud${NC}        ${BLUE}➜${NC} AWS, Azure, GCP, Linode CLIs"
 	@echo ""
-	@echo -e "${CYAN}Examples:${NC}"
-	@echo "  make standard              # Recommended for most users"
-	@echo "  make base shell languages  # Custom component selection"
-	@echo "  make -j4 languages shell-tools  # Parallel installation"
+	@echo -e "${GREEN}┌─────────────────────────────────────────────────────────┐${NC}"
+	@echo -e "${GREEN}│              🤖 AI & EDITORS                            │${NC}"
+	@echo -e "${GREEN}└─────────────────────────────────────────────────────────┘${NC}"
+	@echo -e "  ${CYAN}install-ai-tools${NC}     ${BLUE}➜${NC} VS Code, Cursor, Windsurf, AI tools"
+	@echo -e "  ${CYAN}install-vscode${NC}       ${BLUE}➜${NC} Visual Studio Code only"
+	@echo -e "  ${CYAN}install-cursor${NC}       ${BLUE}➜${NC} Cursor IDE only"
+	@echo -e "  ${CYAN}install-windsurf${NC}     ${BLUE}➜${NC} Windsurf IDE only"
 	@echo ""
+	@echo -e "${GREEN}┌─────────────────────────────────────────────────────────┐${NC}"
+	@echo -e "${GREEN}│              🛠️  MAINTENANCE                             │${NC}"
+	@echo -e "${GREEN}└─────────────────────────────────────────────────────────┘${NC}"
+	@echo -e "  ${CYAN}verify${NC}       ${BLUE}➜${NC} Verify all installed components"
+	@echo -e "  ${CYAN}update${NC}       ${BLUE}➜${NC} Update all installed components"
+	@echo -e "  ${CYAN}doctor${NC}       ${BLUE}➜${NC} Diagnose installation issues"
+	@echo -e "  ${CYAN}clean${NC}        ${BLUE}➜${NC} Remove installation artifacts"
+	@echo -e "  ${CYAN}uninstall${NC}    ${BLUE}➜${NC} Remove all ArmyknifeLabs components"
+	@echo ""
+	@echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+	@echo -e "${BLUE}Examples:${NC}"
+	@echo "  make menu                        # Interactive selection"
+	@echo "  make standard                    # Recommended setup"
+	@echo "  make install-languages install-databases  # Specific components"
+	@echo "  make -j4 install-shell-tools     # Parallel installation"
+	@echo ""
+	@echo -e "${BLUE}Type '${CYAN}make menu${BLUE}' for interactive component selection${NC}"
 
 # Post-installation message
 post-install-message:
@@ -268,41 +375,57 @@ uninstall:
 	fi
 
 # Individual component targets (for direct access)
-base: init-logs
+base install-base: init-logs
 	@$(MAKE) -f makefiles/Makefile.Base.mk all
 
-shell: init-logs
+shell install-shell: init-logs
 	@$(MAKE) -f makefiles/Makefile.Shell.mk all
 
-package-mgrs: init-logs
+package-mgrs install-package-mgrs: init-logs
 	@$(MAKE) -f makefiles/Makefile.PackageMgrs.mk all
 
-languages: init-logs
+languages install-languages: init-logs
 	@$(MAKE) -f makefiles/Makefile.Languages.mk all
 
-databases: init-logs
+databases install-databases: init-logs
 	@$(MAKE) -f makefiles/Makefile.Database.mk all
 
-shell-tools: init-logs
+shell-tools install-shell-tools: init-logs
 	@$(MAKE) -f makefiles/Makefile.ShellTools.mk all
 
-git: init-logs
+git install-git-tools: init-logs
 	@$(MAKE) -f makefiles/Makefile.Git.mk all
 
-security: init-logs
+security install-security: init-logs
 	@$(MAKE) -f makefiles/Makefile.Security.mk all
 
-containers: init-logs
+containers install-containers: init-logs
 	@$(MAKE) -f makefiles/Makefile.Containers.mk all
 
-virtualization: init-logs
+virtualization install-vms: init-logs
 	@$(MAKE) -f makefiles/Makefile.Virtualization.mk all
 
-network: init-logs
+network install-network: init-logs
 	@$(MAKE) -f makefiles/Makefile.Network.mk all
 
-cloud: init-logs
+cloud install-cloud: init-logs
 	@$(MAKE) -f makefiles/Makefile.Cloud.mk all
+
+ai-assistants install-ai-tools: init-logs
+	@$(MAKE) -f makefiles/Makefile.AI-Assistants.mk all
+
+bashlibs install-bashlibs: init-logs
+	@$(MAKE) -f makefiles/Makefile.Bashlibs.mk all
+
+# Specific AI tool installations
+install-vscode: init-logs
+	@$(MAKE) -f makefiles/Makefile.AI-Assistants.mk install-vscode
+
+install-cursor: init-logs
+	@$(MAKE) -f makefiles/Makefile.AI-Assistants.mk install-cursor
+
+install-windsurf: init-logs
+	@$(MAKE) -f makefiles/Makefile.AI-Assistants.mk install-windsurf
 
 # Testing target (for development)
 test:
