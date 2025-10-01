@@ -2,7 +2,7 @@
 # Makefile.AI-Assistants.mk
 #
 # Comprehensive AI-powered development environment setup
-# Installs: VS Code, Cursor, Windsurf, Continue, and other AI coding assistants
+# Installs: VS Code, Cursor, Continue, Zed, and other AI coding assistants
 # Features: GPG key management, extension installation, configuration
 
 # Import parent variables
@@ -57,8 +57,6 @@ endif
 # URLs for downloads
 VSCODE_URL := https://code.visualstudio.com/sha/download?build=stable&os=linux-x64
 CURSOR_URL := https://downloader.cursor.sh/linux/appImage/x64
-WINDSURF_URL := https://windsurf.com/download/editor?os=linux
-WINDSURF_GPG := https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/windsurf.gpg
 CONTINUE_URL := https://continue.dev/install.sh
 ZEDITOR_URL := https://zed.dev/install.sh
 
@@ -76,11 +74,11 @@ endif
 
 # Phony targets
 .PHONY: all minimal setup-repos install-vscode install-cursor install-cursor-cli \
-        install-windsurf install-continue install-zed install-extensions configure-ai \
+        install-continue install-zed install-extensions configure-ai \
         install-github-copilot-cli install-codeium-cli verify-ai help-ai
 
 # Main target - install everything
-all: setup-repos install-vscode install-cursor install-windsurf install-continue \
+all: setup-repos install-vscode install-cursor install-continue \
      install-zed install-extensions install-github-copilot-cli install-codeium-cli \
      configure-ai verify-ai
 
@@ -209,45 +207,6 @@ install-cursor-cli:
 	fi
 	@echo -e "${GREEN}✓${NC} cursor-cli installed"
 
-# Install Windsurf
-install-windsurf:
-	@echo -e "${BLUE}Installing Windsurf...${NC}"
-	@if command -v windsurf &> /dev/null; then \
-		echo -e "${GREEN}✓${NC} Windsurf already installed"; \
-	else \
-		mkdir -p $(HOME)/.local/bin; \
-		if [ "$(IS_LINUX)" = "true" ]; then \
-			echo -e "${YELLOW}Downloading Windsurf...${NC}"; \
-			wget --content-disposition -O /tmp/windsurf-download "$(WINDSURF_URL)" 2>/dev/null || { \
-				echo -e "${YELLOW}⚠ Windsurf download failed.${NC}"; \
-				echo -e "${YELLOW}Please install manually from: https://windsurf.com/download/editor${NC}"; \
-				false; \
-			}; \
-			if [ -f /tmp/windsurf-download ]; then \
-				FILE_TYPE=$$(file -b /tmp/windsurf-download | cut -d' ' -f1); \
-				if echo "$$FILE_TYPE" | grep -q "Debian"; then \
-					$(SUDO) dpkg -i /tmp/windsurf-download 2>/dev/null || $(SUDO) apt-get install -f -y; \
-				elif echo "$$FILE_TYPE" | grep -q "gzip"; then \
-					tar -xzf /tmp/windsurf-download -C $(HOME)/.local/bin/; \
-				elif echo "$$FILE_TYPE" | grep -q "AppImage"; then \
-					mv /tmp/windsurf-download $(HOME)/.local/bin/windsurf; \
-					chmod +x $(HOME)/.local/bin/windsurf; \
-				fi; \
-				rm -f /tmp/windsurf-download; \
-			fi; \
-		elif [ "$(IS_MACOS)" = "true" ]; then \
-			brew install --cask windsurf || { \
-				echo -e "${YELLOW}Installing via direct download...${NC}"; \
-				curl -L https://windsurf-stable.codeiumdata.com/macos/windsurf.dmg -o /tmp/windsurf.dmg; \
-				hdiutil attach /tmp/windsurf.dmg; \
-				cp -R "/Volumes/Windsurf/Windsurf.app" /Applications/; \
-				hdiutil detach "/Volumes/Windsurf"; \
-				rm /tmp/windsurf.dmg; \
-			}; \
-		fi; \
-	fi
-	@echo -e "${GREEN}✓${NC} Windsurf installed"
-
 # Install Continue.dev
 install-continue:
 	@echo -e "${BLUE}Installing Continue.dev...${NC}"
@@ -281,8 +240,6 @@ install-vscode-extensions:
 		code --install-extension GitHub.copilot-labs || true; \
 		code --install-extension Codeium.codeium || true; \
 		code --install-extension Continue.continue || true; \
-		code --install-extension TabNine.tabnine-vscode || true; \
-		code --install-extension OpenAI.openai || true; \
 		code --install-extension AmazonWebServices.aws-toolkit-vscode || true; \
 		code --install-extension ms-python.python || true; \
 		code --install-extension ms-python.vscode-pylance || true; \
@@ -361,7 +318,6 @@ configure-ai:
 	@echo "  - GitHub Copilot: Sign in through VS Code/Cursor"
 	@echo "  - Codeium: Create account at codeium.com"
 	@echo "  - Continue: Configure models in ~/.continue/config.json"
-	@echo "  - Windsurf: Sign in on first launch"
 
 # Verify installation
 verify-ai:
@@ -370,7 +326,6 @@ verify-ai:
 	@command -v code &> /dev/null && echo -e "  ${GREEN}✓${NC} VS Code: $$(code --version | head -1)" || echo -e "  ${RED}✗${NC} VS Code"
 	@command -v cursor &> /dev/null && echo -e "  ${GREEN}✓${NC} Cursor: installed" || echo -e "  ${RED}✗${NC} Cursor"
 	@command -v cursor-cli &> /dev/null && echo -e "  ${GREEN}✓${NC} cursor-cli: installed" || echo -e "  ${RED}✗${NC} cursor-cli"
-	@command -v windsurf &> /dev/null && echo -e "  ${GREEN}✓${NC} Windsurf: installed" || echo -e "  ${RED}✗${NC} Windsurf"
 	@command -v zed &> /dev/null && echo -e "  ${GREEN}✓${NC} Zed: installed" || echo -e "  ${RED}✗${NC} Zed"
 	@echo ""
 	@echo "AI Extensions & Tools:"
@@ -393,7 +348,6 @@ help-ai:
 	@echo "  setup-repos        - Setup GPG keys and repositories"
 	@echo "  install-vscode     - Install Visual Studio Code"
 	@echo "  install-cursor     - Install Cursor Editor"
-	@echo "  install-windsurf   - Install Windsurf Editor"
 	@echo "  install-continue   - Install Continue.dev"
 	@echo "  install-zed        - Install Zed Editor"
 	@echo "  install-extensions - Install AI extensions for all editors"
@@ -404,7 +358,6 @@ help-ai:
 	@echo "  - GitHub Copilot: GitHub account with Copilot subscription"
 	@echo "  - Codeium: Free account at codeium.com"
 	@echo "  - Continue: Configure LLM providers in ~/.continue/config.json"
-	@echo "  - Windsurf: Account creation on first launch"
 	@echo ""
 	@echo "Usage:"
 	@echo "  make -f makefiles/Makefile.AI-Assistants.mk all"

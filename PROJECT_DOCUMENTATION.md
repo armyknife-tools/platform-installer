@@ -20,7 +20,7 @@ armyknife-platform/
 │   ├── Makefile.Virtualization.mk # VirtualBox, Vagrant, Packer
 │   ├── Makefile.Network.mk    # Tailscale, monitoring tools
 │   ├── Makefile.Cloud.mk      # AWS, Azure, GCP, Linode CLIs
-│   ├── Makefile.AI-Assistants.mk # VS Code, Cursor, Windsurf
+│   ├── Makefile.AI-Assistants.mk # VS Code, Cursor, Zed
 │   └── Makefile.Bashlibs.mk   # Bash function libraries
 ├── bashlib/                    # Bash function libraries
 │   ├── 00_core.sh            # Core functions (logging, utilities)
@@ -243,7 +243,7 @@ Includes Standard plus:
 - All databases (MongoDB, MySQL, InfluxDB)
 - Virtualization (VirtualBox, Vagrant)
 - Complete cloud CLIs (AWS, Azure, GCP, Linode)
-- All AI assistants (VS Code, Cursor, Windsurf)
+- All AI assistants (VS Code, Cursor, Zed)
 - Extended monitoring tools
 
 ## Key Configuration Files

@@ -57,7 +57,7 @@ show_menu() {
     echo " 10) Virtualization    - VirtualBox, Vagrant"
     echo " 11) Network           - Tailscale, monitoring"
     echo " 12) Cloud             - AWS, Azure, GCP CLIs"
-    echo " 13) AI & Editors      - VS Code, Cursor, Windsurf"
+    echo " 13) AI & Editors      - VS Code, Cursor, Zed"
     echo " 14) Bash Libraries    - ArmyknifeLabs bashlib"
     echo ""
     echo -e "${YELLOW}Commands:${NC}"

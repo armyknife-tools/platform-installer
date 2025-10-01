@@ -241,7 +241,7 @@ Despite the issues above, the installation completed successfully with:
 - ✅ Container tools (Docker, kubectl, helm, k9s, minikube, kind)
 - ✅ Network tools (Tailscale, WireGuard, nmap)
 - ✅ Cloud CLIs (AWS, Azure, GCP, Terraform)
-- ✅ AI Development tools (VS Code, Cursor, Windsurf, Zed)
+- ✅ AI Development tools (VS Code, Cursor, Zed)
 
 ### Performance:
 - Total installation time: ~15 minutes (most tools already installed)
