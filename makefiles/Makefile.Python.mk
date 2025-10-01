@@ -197,7 +197,6 @@ install-pyenv: install-system-deps
 	@echo -e "${BLUE}ℹ${NC} Installing pyenv..."
 	@if [ -d "$$HOME/.pyenv" ]; then \
 		echo -e "${GREEN}✓${NC} pyenv already installed"; \
-		# Skip update - can be done manually if needed \
 	else \
 		curl -L $(PYENV_INSTALLER) | bash 2>&1 | tee -a $(LOG_FILE); \
 		echo -e "${GREEN}✓${NC} pyenv installed"; \

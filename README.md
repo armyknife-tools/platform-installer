@@ -32,13 +32,15 @@ cd ~/armyknife-platform
 make standard
 ```
 
+> **Note for macOS users:** The installer will detect your current shell and offer to switch between bash (Oh-My-Bash) and zsh (Oh-My-Zsh). Both are fully supported.
+
 ## 📦 Installation Profiles
 
 Choose from pre-configured profiles based on your needs:
 
 | Profile | Description | Time | Components |
 |---------|-------------|------|------------|
-| **minimal** | Base system + shell only | ~15 min | OS updates, build tools, Oh-My-Bash/Zsh |
+| **minimal** | Base system + shell only | ~15 min | OS updates, build tools, Oh-My-Bash/Zsh (auto-detected) |
 | **standard** | Common developer tools | ~45 min | + Languages, containers, git tools |
 | **full** | Everything | ~90 min | + VMs, all cloud providers, Tailscale |
 | **custom** | Choose your components | Varies | Interactive selection |
@@ -80,7 +82,8 @@ curl -fsSL https://armyknife.dev/install.sh | bash -s -- --version v1.2.3
 - Automatic update scheduling
 
 #### Shell Environment
-- **Oh-My-Bash** (Linux) / **Oh-My-Zsh** (macOS)
+- **Oh-My-Bash** (Linux, macOS bash) / **Oh-My-Zsh** (macOS zsh)
+- Automatic shell detection with user preference on macOS
 - Modern prompts (Powerline, Starship)
 - Shell enhancements and productivity tools
 - Custom ArmyknifeLabs aliases and functions

@@ -216,7 +216,7 @@ install-tmux:
 		echo "  Installing TPM..."; \
 		git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm; \
 		echo "  Creating tmux config..."; \
-		echo "  TPM installed (configure tmux manually)"; 
+		echo "  TPM installed (configure tmux manually)"; \
 	fi
 
 # Install direnv

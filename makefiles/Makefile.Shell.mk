@@ -55,16 +55,23 @@ STARSHIP_INSTALLER := https://starship.rs/install.sh
 all: install-oh-my-shell configure-shell install-fonts install-starship \
     setup-plugins configure-aliases integrate-armyknife verify-shell
 
-# Install appropriate Oh-My-Shell based on OS
+# Install appropriate Oh-My-Shell based on OS and user shell
 install-oh-my-shell:
 	@echo -e "${BLUE}ℹ${NC} Installing shell enhancements..."
 ifeq ($(IS_MACOS),true)
-	@$(MAKE) install-oh-my-zsh
+	@# Check if user is running bash on macOS
+	@if [ "$$SHELL" = "/bin/bash" ] || [ "$$(basename $$SHELL)" = "bash" ]; then \
+		echo -e "${YELLOW}ℹ${NC} macOS detected with bash shell"; \
+		echo -e "${BLUE}ℹ${NC} Installing Oh-My-Bash for bash compatibility..."; \
+		$(MAKE) install-oh-my-bash; \
+	else \
+		$(MAKE) install-oh-my-zsh; \
+	fi
 else
 	@$(MAKE) install-oh-my-bash
 endif
 
-# Install Oh-My-Bash (Linux)
+# Install Oh-My-Bash (Linux and macOS bash users)
 install-oh-my-bash:
 	@echo -e "${BLUE}ℹ${NC} Installing Oh-My-Bash..."
 	@if [ -d "$$HOME/.oh-my-bash" ]; then \
@@ -75,14 +82,19 @@ install-oh-my-bash:
 		echo "  Downloading Oh-My-Bash installer..."; \
 		curl -fsSL $(OMB_INSTALLER) -o /tmp/install-omb.sh; \
 		echo "  Running installer..."; \
-		OSH= sh /tmp/install-omb.sh --unattended 2>&1 | tee -a $(LOG_FILE); \
+		OSH= bash /tmp/install-omb.sh --unattended 2>&1 | tee -a $(LOG_FILE); \
 		rm -f /tmp/install-omb.sh; \
 		echo -e "${GREEN}✓${NC} Oh-My-Bash installed"; \
 	fi
-	@# Set theme
+	@# Set theme (handle both Linux and macOS sed)
 	@echo "  Setting theme to powerline-multiline..."
-	@sed -i 's/^OSH_THEME=.*/OSH_THEME="powerline-multiline"/' ~/.bashrc 2>/dev/null || \
-		echo 'OSH_THEME="powerline-multiline"' >> ~/.bashrc
+	@if [ "$$(uname)" = "Darwin" ]; then \
+		sed -i '' 's/^OSH_THEME=.*/OSH_THEME="powerline-multiline"/' ~/.bashrc 2>/dev/null || \
+			echo 'OSH_THEME="powerline-multiline"' >> ~/.bashrc; \
+	else \
+		sed -i 's/^OSH_THEME=.*/OSH_THEME="powerline-multiline"/' ~/.bashrc 2>/dev/null || \
+			echo 'OSH_THEME="powerline-multiline"' >> ~/.bashrc; \
+	fi
 
 # Install Oh-My-Zsh (macOS and optional for Linux)
 install-oh-my-zsh:

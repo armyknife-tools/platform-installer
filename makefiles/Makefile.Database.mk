@@ -297,14 +297,19 @@ endif
 install-duckdb:
 	@echo -e "${BLUE}ℹ${NC} Installing DuckDB..."
 	@if ! command -v duckdb &> /dev/null; then \
-		if [ "$(ARCH)" = "x86_64" ]; then \
-			wget -q https://github.com/duckdb/duckdb/releases/latest/download/duckdb_cli-linux-amd64.zip -O /tmp/duckdb.zip; \
+		if [ "$(IS_MACOS)" = "true" ]; then \
+			brew install duckdb 2>&1 | tee -a $(LOG_FILE) || true; \
 		else \
-			wget -q https://github.com/duckdb/duckdb/releases/latest/download/duckdb_cli-linux-aarch64.zip -O /tmp/duckdb.zip; \
+			mkdir -p $(HOME)/.local/bin; \
+			if [ "$(ARCH)" = "x86_64" ]; then \
+				wget -q https://github.com/duckdb/duckdb/releases/latest/download/duckdb_cli-linux-amd64.zip -O /tmp/duckdb.zip; \
+			else \
+				wget -q https://github.com/duckdb/duckdb/releases/latest/download/duckdb_cli-linux-aarch64.zip -O /tmp/duckdb.zip; \
+			fi; \
+			unzip -q /tmp/duckdb.zip -d $(HOME)/.local/bin/; \
+			rm /tmp/duckdb.zip; \
+			chmod +x $(HOME)/.local/bin/duckdb; \
 		fi; \
-		unzip -q /tmp/duckdb.zip -d $(HOME)/.local/bin/; \
-		rm /tmp/duckdb.zip; \
-		chmod +x $(HOME)/.local/bin/duckdb; \
 	else \
 		echo -e "${GREEN}✓${NC} DuckDB already installed"; \
 	fi

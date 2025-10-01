@@ -109,6 +109,7 @@ detect_os() {
     OS_TYPE="unknown"
     OS_VERSION="unknown"
     ARCH="$(uname -m)"
+    USER_SHELL="$(basename "$SHELL")"
 
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         if [ -f /etc/os-release ]; then
@@ -139,6 +140,7 @@ detect_os() {
     fi
 
     log_info "Detected: $OS_TYPE $OS_VERSION ($ARCH)"
+    log_info "Current shell: $USER_SHELL"
 
     # Validate supported OS
     case "$OS_TYPE" in
@@ -151,6 +153,31 @@ detect_os() {
             exit 1
             ;;
     esac
+
+    # macOS shell preference
+    if [ "$OS_TYPE" = "macos" ] && [ "$NON_INTERACTIVE" = "false" ]; then
+        echo ""
+        if [ "$USER_SHELL" != "bash" ]; then
+            log_info "macOS detected with $USER_SHELL shell"
+            log_info "This installer supports both zsh (Oh-My-Zsh) and bash (Oh-My-Bash)"
+            echo ""
+            log_warning "For better compatibility with this installer, bash is recommended"
+            read -p "$(echo -e "${CYAN}Switch default shell to /bin/bash? (y/N): ${NC}")" -n 1 -r
+            echo
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                log_info "Changing default shell to /bin/bash..."
+                chsh -s /bin/bash
+                export SHELL=/bin/bash
+                USER_SHELL="bash"
+                log_success "Default shell changed to bash"
+                log_warning "Please restart your terminal after installation for the change to take effect"
+            else
+                log_info "Continuing with $USER_SHELL (Oh-My-Zsh will be installed)"
+            fi
+        else
+            log_success "Using bash shell - Oh-My-Bash will be installed"
+        fi
+    fi
 }
 
 # Check prerequisites
@@ -333,6 +360,15 @@ run_installation() {
 
 # Post-installation message
 post_install_message() {
+    local shell_rc=""
+    if [ "$USER_SHELL" = "bash" ] || [ -f ~/.bashrc ]; then
+        shell_rc="~/.bashrc"
+    elif [ "$USER_SHELL" = "zsh" ] || [ -f ~/.zshrc ]; then
+        shell_rc="~/.zshrc"
+    else
+        shell_rc="~/.bashrc"
+    fi
+
     echo ""
     echo -e "${GREEN}🎉 ArmyknifeLabs Platform has been installed successfully!${NC}"
     echo ""
@@ -341,8 +377,12 @@ post_install_message() {
     echo "📝 Next Steps:"
     echo ""
     echo "  1. Restart your shell or run:"
-    echo "     ${CYAN}source ~/.bashrc${NC}  (Linux/WSL)"
-    echo "     ${CYAN}source ~/.zshrc${NC}   (macOS)"
+    echo "     ${CYAN}source $shell_rc${NC}"
+    if [ "$OS_TYPE" = "macos" ] && [ "$USER_SHELL" = "bash" ]; then
+        echo ""
+        echo "     ${YELLOW}Note: You've switched to bash. Please restart your terminal${NC}"
+        echo "     ${YELLOW}      for the shell change to take full effect.${NC}"
+    fi
     echo ""
     echo "  2. Verify installation:"
     echo "     ${CYAN}make -C $INSTALL_DIR verify${NC}"

@@ -121,6 +121,40 @@ detect_system() {
         exit 1
     fi
 
+    # macOS shell preference
+    if [ "$AK_OS_TYPE" = "macos" ]; then
+        echo
+        ui_header "Shell Configuration"
+        echo
+
+        local current_shell=$(basename "$SHELL")
+        ui_info "Current shell: $current_shell"
+        echo
+
+        if [ "$current_shell" != "bash" ]; then
+            ui_info "macOS uses zsh by default, but bash is also supported."
+            ui_info "Zsh → Oh-My-Zsh will be installed"
+            ui_info "Bash → Oh-My-Bash will be installed"
+            echo
+
+            if ui_confirm "Switch to /bin/bash for better compatibility?" "n"; then
+                echo
+                ui_info "Changing default shell to /bin/bash..."
+                chsh -s /bin/bash
+                export SHELL=/bin/bash
+                ui_success "Default shell changed to bash"
+                ui_warning "You'll need to restart your terminal after installation"
+                echo
+            else
+                ui_info "Continuing with zsh"
+                echo
+            fi
+        else
+            ui_success "Using bash shell - Oh-My-Bash will be installed"
+            echo
+        fi
+    fi
+
     ui_pause
 }
 
